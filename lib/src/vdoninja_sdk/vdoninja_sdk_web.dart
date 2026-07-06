@@ -88,9 +88,9 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
   VDONinjaSDKWeb({
     String? host,
     String? room,
-    dynamic password,
+    VDONinjaPassword? password,
     bool? debug,
-    dynamic turnServers,
+    VDONinjaTurnServers? turnServers,
     bool? forceTURN,
     int? turnCacheTTL,
     List<Map<String, dynamic>>? stunServers,
@@ -107,7 +107,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     bool? widget,
     bool? allowMidi,
     bool? allowResources,
-    dynamic allowChunked,
+    VDONinjaAllowChunked? allowChunked,
     Map<String, dynamic>? info,
   }) : _jsSdk = _createJsInstance(
           host: host,
@@ -138,9 +138,9 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
   static VDONinjaSDKJS _createJsInstance({
     String? host,
     String? room,
-    dynamic password,
+    VDONinjaPassword? password,
     bool? debug,
-    dynamic turnServers,
+    VDONinjaTurnServers? turnServers,
     bool? forceTURN,
     int? turnCacheTTL,
     List<Map<String, dynamic>>? stunServers,
@@ -157,7 +157,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     bool? widget,
     bool? allowMidi,
     bool? allowResources,
-    dynamic allowChunked,
+    VDONinjaAllowChunked? allowChunked,
     Map<String, dynamic>? info,
   }) {
     if (!isSDKLoaded) {
@@ -167,9 +167,9 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     final options = <String, dynamic>{};
     if (host != null) options["host"] = host;
     if (room != null) options["room"] = room;
-    if (password != null) options["password"] = password;
+    if (password != null) options["password"] = password.value;
     if (debug != null) options["debug"] = debug;
-    if (turnServers != null) options["turnServers"] = turnServers;
+    if (turnServers != null) options["turnServers"] = turnServers.value;
     if (forceTURN != null) options["forceTURN"] = forceTURN;
     if (turnCacheTTL != null) options["turnCacheTTL"] = turnCacheTTL;
     if (stunServers != null) options["stunServers"] = stunServers;
@@ -186,7 +186,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     if (widget != null) options["widget"] = widget;
     if (allowMidi != null) options["allowMidi"] = allowMidi;
     if (allowResources != null) options["allowResources"] = allowResources;
-    if (allowChunked != null) options["allowChunked"] = allowChunked;
+    if (allowChunked != null) options["allowChunked"] = allowChunked.value;
     if (info != null) options["info"] = info;
 
     return VDONinjaSDKJS(_mapToJSObject(options));
@@ -270,11 +270,11 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
   }
 
   @override
-  Future<void> connect({String? host, String? room, dynamic password}) async {
+  Future<void> connect({String? host, String? room, VDONinjaPassword? password}) async {
     final options = <String, dynamic>{};
     if (host != null) options["host"] = host;
     if (room != null) options["room"] = room;
-    if (password != null) options["password"] = password;
+    if (password != null) options["password"] = password.value;
 
     final jsPromise = _jsSdk.connect(_mapToJSObject(options));
     await jsPromise.toDart;
@@ -284,10 +284,10 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
   void disconnect() => _jsSdk.disconnect();
 
   @override
-  Future<void> joinRoom({String? room, dynamic password, bool? claim}) async {
+  Future<void> joinRoom({String? room, VDONinjaPassword? password, bool? claim}) async {
     final options = <String, dynamic>{};
     if (room != null) options["room"] = room;
-    if (password != null) options["password"] = password;
+    if (password != null) options["password"] = password.value;
     if (claim != null) options["claim"] = claim;
 
     final jsPromise = _jsSdk.joinRoom(_mapToJSObject(options));
@@ -302,7 +302,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     String? streamID,
     String? label,
     String? room,
-    dynamic password,
+    VDONinjaPassword? password,
     String? meta,
     String? order,
     bool? broadcast,
@@ -311,7 +311,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     bool? widget,
     bool? allowMidi,
     bool? allowResources,
-    dynamic allowChunked,
+    VDONinjaAllowChunked? allowChunked,
     Map<String, dynamic>? info,
     Map<String, dynamic>? media,
     Map<String, dynamic>? webrtc,
@@ -320,7 +320,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     if (streamID != null) options["streamID"] = streamID;
     if (label != null) options["label"] = label;
     if (room != null) options["room"] = room;
-    if (password != null) options["password"] = password;
+    if (password != null) options["password"] = password.value;
     if (meta != null) options["meta"] = meta;
     if (order != null) options["order"] = order;
     if (broadcast != null) options["broadcast"] = broadcast;
@@ -329,7 +329,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     if (widget != null) options["widget"] = widget;
     if (allowMidi != null) options["allowMidi"] = allowMidi;
     if (allowResources != null) options["allowResources"] = allowResources;
-    if (allowChunked != null) options["allowChunked"] = allowChunked;
+    if (allowChunked != null) options["allowChunked"] = allowChunked.value;
     if (info != null) options["info"] = info;
     if (media != null) options["media"] = media;
     if (webrtc != null) options["webrtc"] = webrtc;
@@ -351,7 +351,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     String? streamID,
     String? room,
     String? label,
-    dynamic password,
+    VDONinjaPassword? password,
     String? meta,
     String? order,
     bool? broadcast,
@@ -360,14 +360,14 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     bool? widget,
     bool? allowMidi,
     bool? allowResources,
-    dynamic allowChunked,
+    VDONinjaAllowChunked? allowChunked,
     Map<String, dynamic>? info,
   }) async {
     final options = <String, dynamic>{};
     if (streamID != null) options["streamID"] = streamID;
     if (room != null) options["room"] = room;
     if (label != null) options["label"] = label;
-    if (password != null) options["password"] = password;
+    if (password != null) options["password"] = password.value;
     if (meta != null) options["meta"] = meta;
     if (order != null) options["order"] = order;
     if (broadcast != null) options["broadcast"] = broadcast;
@@ -376,7 +376,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     if (widget != null) options["widget"] = widget;
     if (allowMidi != null) options["allowMidi"] = allowMidi;
     if (allowResources != null) options["allowResources"] = allowResources;
-    if (allowChunked != null) options["allowChunked"] = allowChunked;
+    if (allowChunked != null) options["allowChunked"] = allowChunked.value;
     if (info != null) options["info"] = info;
 
     final jsPromise = _jsSdk.announce(_mapToJSObject(options));
@@ -392,7 +392,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     String? streamID,
     String? label,
     String? room,
-    dynamic password,
+    VDONinjaPassword? password,
     String? meta,
     String? order,
     bool? broadcast,
@@ -401,7 +401,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     bool? widget,
     bool? allowMidi,
     bool? allowResources,
-    dynamic allowChunked,
+    VDONinjaAllowChunked? allowChunked,
     Map<String, dynamic>? info,
     Map<String, dynamic>? media,
     Map<String, dynamic>? webrtc,
@@ -410,7 +410,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     if (streamID != null) options["streamID"] = streamID;
     if (label != null) options["label"] = label;
     if (room != null) options["room"] = room;
-    if (password != null) options["password"] = password;
+    if (password != null) options["password"] = password.value;
     if (meta != null) options["meta"] = meta;
     if (order != null) options["order"] = order;
     if (broadcast != null) options["broadcast"] = broadcast;
@@ -419,7 +419,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     if (widget != null) options["widget"] = widget;
     if (allowMidi != null) options["allowMidi"] = allowMidi;
     if (allowResources != null) options["allowResources"] = allowResources;
-    if (allowChunked != null) options["allowChunked"] = allowChunked;
+    if (allowChunked != null) options["allowChunked"] = allowChunked.value;
     if (info != null) options["info"] = info;
     if (media != null) options["media"] = media;
     if (webrtc != null) options["webrtc"] = webrtc;
@@ -442,12 +442,12 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
 
   @override
   Future<dynamic> view(String streamID, {
-    dynamic password,
+    VDONinjaPassword? password,
     Map<String, dynamic>? preferences,
     Map<String, dynamic>? viewPreferences,
   }) async {
     final options = <String, dynamic>{};
-    if (password != null) options["password"] = password;
+    if (password != null) options["password"] = password.value;
     if (preferences != null) options["preferences"] = preferences;
     if (viewPreferences != null) options["viewPreferences"] = viewPreferences;
 
@@ -460,7 +460,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
   Future<dynamic> quickView({
     required String streamID,
     String? room,
-    dynamic password,
+    VDONinjaPassword? password,
     bool? audio,
     bool? video,
     String? label,
@@ -469,7 +469,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     final options = <String, dynamic>{};
     options["streamID"] = streamID;
     if (room != null) options["room"] = room;
-    if (password != null) options["password"] = password;
+    if (password != null) options["password"] = password.value;
     if (audio != null) options["audio"] = audio;
     if (video != null) options["video"] = video;
     if (label != null) options["label"] = label;
@@ -484,7 +484,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
   Future<dynamic> quickSubscribe({
     required String streamID,
     String? room,
-    dynamic password,
+    VDONinjaPassword? password,
     bool? audio,
     bool? video,
     String? label,
@@ -493,7 +493,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     final options = <String, dynamic>{};
     options["streamID"] = streamID;
     if (room != null) options["room"] = room;
-    if (password != null) options["password"] = password;
+    if (password != null) options["password"] = password.value;
     if (audio != null) options["audio"] = audio;
     if (video != null) options["video"] = video;
     if (label != null) options["label"] = label;
@@ -510,7 +510,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     String? mode,
     String? streamID,
     String? label,
-    dynamic password,
+    VDONinjaPassword? password,
     bool Function(Map<String, dynamic> item)? filter,
     Map<String, dynamic>? view,
   }) async {
@@ -519,7 +519,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     if (mode != null) options["mode"] = mode;
     if (streamID != null) options["streamID"] = streamID;
     if (label != null) options["label"] = label;
-    if (password != null) options["password"] = password;
+    if (password != null) options["password"] = password.value;
     if (view != null) options["view"] = view;
 
     JSFunction? jsFilter;
@@ -841,9 +841,9 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
 VDONinjaSDK createSDK({
   String? host,
   String? room,
-  dynamic password,
+  VDONinjaPassword? password,
   bool? debug,
-  dynamic turnServers,
+  VDONinjaTurnServers? turnServers,
   bool? forceTURN,
   int? turnCacheTTL,
   List<Map<String, dynamic>>? stunServers,
@@ -860,7 +860,7 @@ VDONinjaSDK createSDK({
   bool? widget,
   bool? allowMidi,
   bool? allowResources,
-  dynamic allowChunked,
+  VDONinjaAllowChunked? allowChunked,
   Map<String, dynamic>? info,
 }) {
   return VDONinjaSDKWeb(

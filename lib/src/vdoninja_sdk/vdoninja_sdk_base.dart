@@ -176,6 +176,138 @@ class VDONinjaErrorEvent extends VDONinjaEvent {
   String toString() => "VDONinjaErrorEvent(message: $message, details: $details)";
 }
 
+/// Represents the password parameter for VDO.Ninja SDK.
+///
+/// Can be a [String] to enable AES-CBC encryption, or a [bool] (specifically `false`)
+/// to explicitly disable encryption.
+sealed class VDONinjaPassword {
+  /// The underlying value.
+  final dynamic value;
+
+  const VDONinjaPassword._(this.value);
+
+  /// Enable AES-CBC encryption with the specified room password.
+  const factory VDONinjaPassword.string(String password) = VDONinjaPasswordString;
+
+  /// Set the password via a boolean value. Pass `false` to explicitly disable encryption.
+  const factory VDONinjaPassword.boolean(bool enabled) = VDONinjaPasswordBoolean;
+
+  /// Explicitly disable encryption.
+  static const VDONinjaPassword disable = VDONinjaPasswordBoolean(false);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is VDONinjaPassword && runtimeType == other.runtimeType && value == other.value;
+
+  @override
+  int get hashCode => value.hashCode;
+}
+
+class VDONinjaPasswordString extends VDONinjaPassword {
+  @override
+  final String value;
+  const VDONinjaPasswordString(this.value) : super._(value);
+
+  @override
+  String toString() => "VDONinjaPassword.string($value)";
+}
+
+class VDONinjaPasswordBoolean extends VDONinjaPassword {
+  @override
+  final bool value;
+  const VDONinjaPasswordBoolean(this.value) : super._(value);
+
+  @override
+  String toString() => "VDONinjaPassword.boolean($value)";
+}
+
+/// Represents the custom TURN servers configuration option.
+///
+/// Can be a [bool] (specifically `false`) to disable TURN servers,
+/// or a [List] of TURN server configuration maps.
+sealed class VDONinjaTurnServers {
+  /// The underlying value.
+  final dynamic value;
+
+  const VDONinjaTurnServers._(this.value);
+
+  /// Provide a custom list of TURN server configuration maps.
+  const factory VDONinjaTurnServers.custom(List<Map<String, dynamic>> servers) = VDONinjaTurnServersList;
+
+  /// Disable TURN servers explicitly.
+  static const VDONinjaTurnServers disable = VDONinjaTurnServersBoolean(false);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is VDONinjaTurnServers && runtimeType == other.runtimeType && value == other.value;
+
+  @override
+  int get hashCode => value.hashCode;
+}
+
+class VDONinjaTurnServersBoolean extends VDONinjaTurnServers {
+  @override
+  final bool value;
+  const VDONinjaTurnServersBoolean(this.value) : super._(value);
+
+  @override
+  String toString() => "VDONinjaTurnServers.boolean($value)";
+}
+
+class VDONinjaTurnServersList extends VDONinjaTurnServers {
+  @override
+  final List<Map<String, dynamic>> value;
+  const VDONinjaTurnServersList(this.value) : super._(value);
+
+  @override
+  String toString() => "VDONinjaTurnServers.custom($value)";
+}
+
+/// Represents the chunked transmission configuration option.
+///
+/// Can be a [bool] to enable/disable chunked data transmission, or an [int]
+/// to specify a block size.
+sealed class VDONinjaAllowChunked {
+  /// The underlying value.
+  final dynamic value;
+
+  const VDONinjaAllowChunked._(this.value);
+
+  /// Enable or disable chunked data transmission.
+  const factory VDONinjaAllowChunked.boolean(bool enabled) = VDONinjaAllowChunkedBoolean;
+
+  /// Enable chunked data transmission with a specific block size.
+  const factory VDONinjaAllowChunked.blockSize(int size) = VDONinjaAllowChunkedInteger;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is VDONinjaAllowChunked && runtimeType == other.runtimeType && value == other.value;
+
+  @override
+  int get hashCode => value.hashCode;
+}
+
+class VDONinjaAllowChunkedBoolean extends VDONinjaAllowChunked {
+  @override
+  final bool value;
+  const VDONinjaAllowChunkedBoolean(this.value) : super._(value);
+
+  @override
+  String toString() => "VDONinjaAllowChunked.boolean($value)";
+}
+
+class VDONinjaAllowChunkedInteger extends VDONinjaAllowChunked {
+  @override
+  final int value;
+  const VDONinjaAllowChunkedInteger(this.value) : super._(value);
+
+  @override
+  String toString() => "VDONinjaAllowChunked.blockSize($value)";
+}
+
 /// The base abstract class for the VDO.Ninja SDK.
 ///
 /// Use [VDONinjaSDK] to initialize and interact with the VDO.Ninja SDK.
@@ -194,14 +326,14 @@ abstract class VDONinjaSDK {
 
     /// The room password. String value enables AES-CBC encryption for SDP and ICE candidates.
     /// Pass `false` to explicitly disable encryption.
-    dynamic password,
+    VDONinjaPassword? password,
 
     /// Set to `true` to enable verbose console logging.
     bool? debug,
 
     /// Custom TURN server list configuration. Pass `false` to disable TURN servers,
     /// or `null` to auto-fetch optimal TURN servers.
-    dynamic turnServers,
+    VDONinjaTurnServers? turnServers,
 
     /// Set to `true` to force relaying WebRTC connections through TURN servers for privacy.
     bool? forceTURN,
@@ -252,7 +384,7 @@ abstract class VDONinjaSDK {
     bool? allowResources,
 
     /// Set to `true` or an integer block size to enable chunked data transmission.
-    dynamic allowChunked,
+    VDONinjaAllowChunked? allowChunked,
 
     /// Additional publisher metadata information.
     Map<String, dynamic>? info,
@@ -317,7 +449,7 @@ abstract class VDONinjaSDK {
   /// Connect to the signaling server.
   ///
   /// Can optionally override [host], [room], or [password].
-  Future<void> connect({String? host, String? room, dynamic password});
+  Future<void> connect({String? host, String? room, VDONinjaPassword? password});
 
   /// Disconnect from the signaling server, closing all peer connections and data channels.
   void disconnect();
@@ -326,7 +458,7 @@ abstract class VDONinjaSDK {
   ///
   /// Requires a [room] name. Hashing is automatically done if [password] is set.
   /// Set [claim] to true to request director status.
-  Future<void> joinRoom({String? room, dynamic password, bool? claim});
+  Future<void> joinRoom({String? room, VDONinjaPassword? password, bool? claim});
 
   /// Leave the current room.
   void leaveRoom();
@@ -339,7 +471,7 @@ abstract class VDONinjaSDK {
     String? streamID,
     String? label,
     String? room,
-    dynamic password,
+    VDONinjaPassword? password,
     String? meta,
     String? order,
     bool? broadcast,
@@ -348,7 +480,7 @@ abstract class VDONinjaSDK {
     bool? widget,
     bool? allowMidi,
     bool? allowResources,
-    dynamic allowChunked,
+    VDONinjaAllowChunked? allowChunked,
     Map<String, dynamic>? info,
     Map<String, dynamic>? media,
     Map<String, dynamic>? webrtc,
@@ -362,7 +494,7 @@ abstract class VDONinjaSDK {
     String? streamID,
     String? room,
     String? label,
-    dynamic password,
+    VDONinjaPassword? password,
     String? meta,
     String? order,
     bool? broadcast,
@@ -371,7 +503,7 @@ abstract class VDONinjaSDK {
     bool? widget,
     bool? allowMidi,
     bool? allowResources,
-    dynamic allowChunked,
+    VDONinjaAllowChunked? allowChunked,
     Map<String, dynamic>? info,
   });
 
@@ -385,7 +517,7 @@ abstract class VDONinjaSDK {
     String? streamID,
     String? label,
     String? room,
-    dynamic password,
+    VDONinjaPassword? password,
     String? meta,
     String? order,
     bool? broadcast,
@@ -394,7 +526,7 @@ abstract class VDONinjaSDK {
     bool? widget,
     bool? allowMidi,
     bool? allowResources,
-    dynamic allowChunked,
+    VDONinjaAllowChunked? allowChunked,
     Map<String, dynamic>? info,
     Map<String, dynamic>? media,
     Map<String, dynamic>? webrtc,
@@ -407,7 +539,7 @@ abstract class VDONinjaSDK {
   ///
   /// Returns a Future that resolves with the RTCPeerConnection of the viewer (on web, `web.RTCPeerConnection`).
   Future<dynamic> view(String streamID, {
-    dynamic password,
+    VDONinjaPassword? password,
     Map<String, dynamic>? preferences,
     Map<String, dynamic>? viewPreferences,
   });
@@ -418,7 +550,7 @@ abstract class VDONinjaSDK {
   Future<dynamic> quickView({
     required String streamID,
     String? room,
-    dynamic password,
+    VDONinjaPassword? password,
     bool? audio,
     bool? video,
     String? label,
@@ -432,7 +564,7 @@ abstract class VDONinjaSDK {
   Future<dynamic> quickSubscribe({
     required String streamID,
     String? room,
-    dynamic password,
+    VDONinjaPassword? password,
     bool? audio,
     bool? video,
     String? label,
@@ -451,7 +583,7 @@ abstract class VDONinjaSDK {
     String? mode,
     String? streamID,
     String? label,
-    dynamic password,
+    VDONinjaPassword? password,
     bool Function(Map<String, dynamic> item)? filter,
     Map<String, dynamic>? view,
   });

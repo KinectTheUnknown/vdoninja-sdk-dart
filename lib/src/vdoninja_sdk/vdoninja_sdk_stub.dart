@@ -6,9 +6,9 @@ class VDONinjaSDKStub implements VDONinjaSDK {
   VDONinjaSDKStub({
     String? host,
     String? room,
-    dynamic password,
+    VDONinjaPassword? password,
     bool? debug,
-    dynamic turnServers,
+    VDONinjaTurnServers? turnServers,
     bool? forceTURN,
     int? turnCacheTTL,
     List<Map<String, dynamic>>? stunServers,
@@ -25,7 +25,7 @@ class VDONinjaSDKStub implements VDONinjaSDK {
     bool? widget,
     bool? allowMidi,
     bool? allowResources,
-    dynamic allowChunked,
+    VDONinjaAllowChunked? allowChunked,
     Map<String, dynamic>? info,
   });
 
@@ -48,7 +48,7 @@ class VDONinjaSDKStub implements VDONinjaSDK {
   bool get isPublishing => false;
 
   @override
-  Future<void> connect({String? host, String? room, dynamic password}) {
+  Future<void> connect({String? host, String? room, VDONinjaPassword? password}) {
     throw UnsupportedError("VDO.Ninja SDK is only supported on the Web platform.");
   }
 
@@ -58,7 +58,7 @@ class VDONinjaSDKStub implements VDONinjaSDK {
   }
 
   @override
-  Future<void> joinRoom({String? room, dynamic password, bool? claim}) {
+  Future<void> joinRoom({String? room, VDONinjaPassword? password, bool? claim}) {
     throw UnsupportedError("VDO.Ninja SDK is only supported on the Web platform.");
   }
 
@@ -72,7 +72,7 @@ class VDONinjaSDKStub implements VDONinjaSDK {
     String? streamID,
     String? label,
     String? room,
-    dynamic password,
+    VDONinjaPassword? password,
     String? meta,
     String? order,
     bool? broadcast,
@@ -81,7 +81,7 @@ class VDONinjaSDKStub implements VDONinjaSDK {
     bool? widget,
     bool? allowMidi,
     bool? allowResources,
-    dynamic allowChunked,
+    VDONinjaAllowChunked? allowChunked,
     Map<String, dynamic>? info,
     Map<String, dynamic>? media,
     Map<String, dynamic>? webrtc,
@@ -94,7 +94,7 @@ class VDONinjaSDKStub implements VDONinjaSDK {
     String? streamID,
     String? room,
     String? label,
-    dynamic password,
+    VDONinjaPassword? password,
     String? meta,
     String? order,
     bool? broadcast,
@@ -103,7 +103,7 @@ class VDONinjaSDKStub implements VDONinjaSDK {
     bool? widget,
     bool? allowMidi,
     bool? allowResources,
-    dynamic allowChunked,
+    VDONinjaAllowChunked? allowChunked,
     Map<String, dynamic>? info,
   }) {
     throw UnsupportedError("VDO.Ninja SDK is only supported on the Web platform.");
@@ -119,7 +119,7 @@ class VDONinjaSDKStub implements VDONinjaSDK {
     String? streamID,
     String? label,
     String? room,
-    dynamic password,
+    VDONinjaPassword? password,
     String? meta,
     String? order,
     bool? broadcast,
@@ -128,7 +128,7 @@ class VDONinjaSDKStub implements VDONinjaSDK {
     bool? widget,
     bool? allowMidi,
     bool? allowResources,
-    dynamic allowChunked,
+    VDONinjaAllowChunked? allowChunked,
     Map<String, dynamic>? info,
     Map<String, dynamic>? media,
     Map<String, dynamic>? webrtc,
@@ -143,7 +143,7 @@ class VDONinjaSDKStub implements VDONinjaSDK {
 
   @override
   Future<dynamic> view(String streamID, {
-    dynamic password,
+    VDONinjaPassword? password,
     Map<String, dynamic>? preferences,
     Map<String, dynamic>? viewPreferences,
   }) {
@@ -154,7 +154,7 @@ class VDONinjaSDKStub implements VDONinjaSDK {
   Future<dynamic> quickView({
     required String streamID,
     String? room,
-    dynamic password,
+    VDONinjaPassword? password,
     bool? audio,
     bool? video,
     String? label,
@@ -167,7 +167,7 @@ class VDONinjaSDKStub implements VDONinjaSDK {
   Future<dynamic> quickSubscribe({
     required String streamID,
     String? room,
-    dynamic password,
+    VDONinjaPassword? password,
     bool? audio,
     bool? video,
     String? label,
@@ -182,7 +182,7 @@ class VDONinjaSDKStub implements VDONinjaSDK {
     String? mode,
     String? streamID,
     String? label,
-    dynamic password,
+    VDONinjaPassword? password,
     bool Function(Map<String, dynamic> item)? filter,
     Map<String, dynamic>? view,
   }) {
@@ -261,9 +261,9 @@ class VDONinjaSDKStub implements VDONinjaSDK {
 VDONinjaSDK createSDK({
   String? host,
   String? room,
-  dynamic password,
+  VDONinjaPassword? password,
   bool? debug,
-  dynamic turnServers,
+  VDONinjaTurnServers? turnServers,
   bool? forceTURN,
   int? turnCacheTTL,
   List<Map<String, dynamic>>? stunServers,
@@ -280,7 +280,7 @@ VDONinjaSDK createSDK({
   bool? widget,
   bool? allowMidi,
   bool? allowResources,
-  dynamic allowChunked,
+  VDONinjaAllowChunked? allowChunked,
   Map<String, dynamic>? info,
 }) {
   return VDONinjaSDKStub(

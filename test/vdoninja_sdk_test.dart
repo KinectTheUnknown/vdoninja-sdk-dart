@@ -27,6 +27,19 @@ void main() {
       expect(sdk.uuid, isNull);
     });
 
+    test("instantiates VDONinjaSDK stub correctly on VM with union type parameters", () {
+      final sdk = VDONinjaSDK(
+        host: "wss://test.vdo.ninja",
+        room: "test_room",
+        password: VDONinjaPassword.disable,
+        turnServers: VDONinjaTurnServers.disable,
+        allowChunked: const VDONinjaAllowChunked.blockSize(16384),
+        debug: true,
+      );
+
+      expect(sdk, isNotNull);
+    });
+
     test("connect throws UnsupportedError on native VM", () async {
       final sdk = VDONinjaSDK();
       expect(

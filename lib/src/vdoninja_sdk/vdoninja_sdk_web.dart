@@ -727,15 +727,9 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
       final streamsAny = detailObj.getProperty("streams".toJS);
       final uuid = detailObj.getProperty("uuid".toJS) as JSString?;
       final streamID = detailObj.getProperty("streamID".toJS) as JSString?;
-
-      final streamsList = <dynamic>[];
-      if (streamsAny != null && streamsAny.isA<JSArray>()) {
-        final array = streamsAny as JSArray;
-        final dartList = array.toDart;
-        for (final item in dartList) {
-          streamsList.add(item);
-        }
-      }
+      final streamsList = streamsAny != null && streamsAny.isA<JSArray>()
+          ? List<dynamic>.from((streamsAny as JSArray).toDart)
+          : <dynamic>[];
 
       return VDONinjaTrackEvent(
         track: track,

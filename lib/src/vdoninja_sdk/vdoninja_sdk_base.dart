@@ -182,9 +182,9 @@ class VDONinjaErrorEvent extends VDONinjaEvent {
 /// to explicitly disable encryption.
 sealed class VDONinjaPassword {
   /// The underlying value.
-  final dynamic value;
+  dynamic get value;
 
-  const VDONinjaPassword._(this.value);
+  const VDONinjaPassword();
 
   /// Enable AES-CBC encryption with the specified room password.
   const factory VDONinjaPassword.string(String password) = VDONinjaPasswordString;
@@ -207,7 +207,7 @@ sealed class VDONinjaPassword {
 class VDONinjaPasswordString extends VDONinjaPassword {
   @override
   final String value;
-  const VDONinjaPasswordString(this.value) : super._(value);
+  const VDONinjaPasswordString(this.value);
 
   @override
   String toString() => "VDONinjaPassword.string($value)";
@@ -216,7 +216,7 @@ class VDONinjaPasswordString extends VDONinjaPassword {
 class VDONinjaPasswordBoolean extends VDONinjaPassword {
   @override
   final bool value;
-  const VDONinjaPasswordBoolean(this.value) : super._(value);
+  const VDONinjaPasswordBoolean(this.value);
 
   @override
   String toString() => "VDONinjaPassword.boolean($value)";
@@ -228,9 +228,9 @@ class VDONinjaPasswordBoolean extends VDONinjaPassword {
 /// or a [List] of TURN server configuration maps.
 sealed class VDONinjaTurnServers {
   /// The underlying value.
-  final dynamic value;
+  dynamic get value;
 
-  const VDONinjaTurnServers._(this.value);
+  const VDONinjaTurnServers();
 
   /// Provide a custom list of TURN server configuration maps.
   const factory VDONinjaTurnServers.custom(List<Map<String, dynamic>> servers) = VDONinjaTurnServersList;
@@ -250,7 +250,7 @@ sealed class VDONinjaTurnServers {
 class VDONinjaTurnServersBoolean extends VDONinjaTurnServers {
   @override
   final bool value;
-  const VDONinjaTurnServersBoolean(this.value) : super._(value);
+  const VDONinjaTurnServersBoolean(this.value);
 
   @override
   String toString() => "VDONinjaTurnServers.boolean($value)";
@@ -259,7 +259,7 @@ class VDONinjaTurnServersBoolean extends VDONinjaTurnServers {
 class VDONinjaTurnServersList extends VDONinjaTurnServers {
   @override
   final List<Map<String, dynamic>> value;
-  const VDONinjaTurnServersList(this.value) : super._(value);
+  const VDONinjaTurnServersList(this.value);
 
   @override
   String toString() => "VDONinjaTurnServers.custom($value)";
@@ -271,9 +271,9 @@ class VDONinjaTurnServersList extends VDONinjaTurnServers {
 /// to specify a block size.
 sealed class VDONinjaAllowChunked {
   /// The underlying value.
-  final dynamic value;
+  dynamic get value;
 
-  const VDONinjaAllowChunked._(this.value);
+  const VDONinjaAllowChunked();
 
   /// Enable or disable chunked data transmission.
   const factory VDONinjaAllowChunked.boolean(bool enabled) = VDONinjaAllowChunkedBoolean;
@@ -293,7 +293,7 @@ sealed class VDONinjaAllowChunked {
 class VDONinjaAllowChunkedBoolean extends VDONinjaAllowChunked {
   @override
   final bool value;
-  const VDONinjaAllowChunkedBoolean(this.value) : super._(value);
+  const VDONinjaAllowChunkedBoolean(this.value);
 
   @override
   String toString() => "VDONinjaAllowChunked.boolean($value)";
@@ -302,7 +302,7 @@ class VDONinjaAllowChunkedBoolean extends VDONinjaAllowChunked {
 class VDONinjaAllowChunkedInteger extends VDONinjaAllowChunked {
   @override
   final int value;
-  const VDONinjaAllowChunkedInteger(this.value) : super._(value);
+  const VDONinjaAllowChunkedInteger(this.value);
 
   @override
   String toString() => "VDONinjaAllowChunked.blockSize($value)";

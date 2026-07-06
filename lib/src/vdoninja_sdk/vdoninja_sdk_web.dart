@@ -30,13 +30,12 @@ dynamic _jsAnyToDart(JSAny? value) {
   if (value.isA<JSNumber>()) return (value as JSNumber).toDartDouble;
   if (value.isA<JSString>()) return (value as JSString).toDart;
   if (value.isA<JSArray>()) {
-    final list = [];
-    final array = value as JSArray;
-    final dartList = array.toDart;
-    for (final item in dartList) {
-      list.add(_jsAnyToDart(item));
-    }
-    return list;
+    final dartList = (value as JSArray).toDart;
+    return List<dynamic>.generate(
+      dartList.length,
+      (i) => _jsAnyToDart(dartList[i]),
+      growable: true,
+    );
   }
   if (value.isA<JSObject>()) {
     try {
@@ -184,12 +183,14 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     if (stunServers != null) {
       options["stunServers"] = stunServers.map((s) => s.value).toList();
     }
-    if (maxReconnectAttempts != null)
+    if (maxReconnectAttempts != null) {
       options["maxReconnectAttempts"] = maxReconnectAttempts;
+    }
     if (reconnectDelay != null) options["reconnectDelay"] = reconnectDelay;
     if (autoPingViewer != null) options["autoPingViewer"] = autoPingViewer;
-    if (autoPingInterval != null)
+    if (autoPingInterval != null) {
       options["autoPingInterval"] = autoPingInterval;
+    }
     if (label != null) options["label"] = label;
     if (meta != null) options["meta"] = meta;
     if (order != null) options["order"] = order;

@@ -30,13 +30,12 @@ dynamic _jsAnyToDart(JSAny? value) {
   if (value.isA<JSNumber>()) return (value as JSNumber).toDartDouble;
   if (value.isA<JSString>()) return (value as JSString).toDart;
   if (value.isA<JSArray>()) {
-    final list = [];
-    final array = value as JSArray;
-    final dartList = array.toDart;
-    for (final item in dartList) {
-      list.add(_jsAnyToDart(item));
-    }
-    return list;
+    final dartList = (value as JSArray).toDart;
+    return List<dynamic>.generate(
+      dartList.length,
+      (i) => _jsAnyToDart(dartList[i]),
+      growable: true,
+    );
   }
   if (value.isA<JSObject>()) {
     try {
@@ -52,25 +51,25 @@ dynamic _jsAnyToDart(JSAny? value) {
 @JS("VDONinjaSDK")
 extension type VDONinjaSDKJS._(JSObject _) implements JSObject {
   external VDONinjaSDKJS([JSObject? options]);
-  
+
   external JSPromise connect([JSObject? options]);
   external void disconnect();
-  
+
   external JSPromise joinRoom([JSObject? options]);
   external void leaveRoom();
-  
+
   external JSPromise publish(JSObject stream, [JSObject? options]);
   external JSPromise announce([JSObject? options]);
   external void stopPublishing();
-  
+
   external JSPromise quickPublish([JSObject? options]);
   external JSPromise quickView([JSObject? options]);
   external JSPromise quickSubscribe([JSObject? options]);
   external JSPromise autoConnect(JSAny roomOrOptions, [JSFunction? filter]);
-  
+
   external void stopViewing(JSString streamID);
   external JSPromise view(JSString streamID, [JSObject? options]);
-  
+
   external void sendData(JSAny data, [JSObject? options]);
   external JSArray getStreams();
   external JSObject? getStreamInfo(JSString streamID);
@@ -110,30 +109,30 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     VDONinjaAllowChunked? allowChunked,
     Map<String, dynamic>? info,
   }) : _jsSdk = _createJsInstance(
-          host: host,
-          room: room,
-          password: password,
-          debug: debug,
-          turnServers: turnServers,
-          forceTURN: forceTURN,
-          turnCacheTTL: turnCacheTTL,
-          stunServers: stunServers,
-          maxReconnectAttempts: maxReconnectAttempts,
-          reconnectDelay: reconnectDelay,
-          autoPingViewer: autoPingViewer,
-          autoPingInterval: autoPingInterval,
-          label: label,
-          meta: meta,
-          order: order,
-          broadcast: broadcast,
-          allowDrawing: allowDrawing,
-          iframe: iframe,
-          widget: widget,
-          allowMidi: allowMidi,
-          allowResources: allowResources,
-          allowChunked: allowChunked,
-          info: info,
-        );
+         host: host,
+         room: room,
+         password: password,
+         debug: debug,
+         turnServers: turnServers,
+         forceTURN: forceTURN,
+         turnCacheTTL: turnCacheTTL,
+         stunServers: stunServers,
+         maxReconnectAttempts: maxReconnectAttempts,
+         reconnectDelay: reconnectDelay,
+         autoPingViewer: autoPingViewer,
+         autoPingInterval: autoPingInterval,
+         label: label,
+         meta: meta,
+         order: order,
+         broadcast: broadcast,
+         allowDrawing: allowDrawing,
+         iframe: iframe,
+         widget: widget,
+         allowMidi: allowMidi,
+         allowResources: allowResources,
+         allowChunked: allowChunked,
+         info: info,
+       );
 
   static VDONinjaSDKJS _createJsInstance({
     String? host,
@@ -161,7 +160,9 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     Map<String, dynamic>? info,
   }) {
     if (!isSDKLoaded) {
-      throw StateError("VDO.Ninja SDK has not been loaded. Call VDO.Ninja SDK.initialize() first.");
+      throw StateError(
+        "VDO.Ninja SDK has not been loaded. Call VDO.Ninja SDK.initialize() first.",
+      );
     }
 
     final options = <String, dynamic>{};
@@ -182,10 +183,14 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     if (stunServers != null) {
       options["stunServers"] = stunServers.map((s) => s.value).toList();
     }
-    if (maxReconnectAttempts != null) options["maxReconnectAttempts"] = maxReconnectAttempts;
+    if (maxReconnectAttempts != null) {
+      options["maxReconnectAttempts"] = maxReconnectAttempts;
+    }
     if (reconnectDelay != null) options["reconnectDelay"] = reconnectDelay;
     if (autoPingViewer != null) options["autoPingViewer"] = autoPingViewer;
-    if (autoPingInterval != null) options["autoPingInterval"] = autoPingInterval;
+    if (autoPingInterval != null) {
+      options["autoPingInterval"] = autoPingInterval;
+    }
     if (label != null) options["label"] = label;
     if (meta != null) options["meta"] = meta;
     if (order != null) options["order"] = order;
@@ -210,7 +215,8 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
   static Future<void> initialize({String? cdnUrl}) async {
     if (isSDKLoaded) return;
     final completer = Completer<void>();
-    final script = web.document.createElement("script") as web.HTMLScriptElement;
+    final script =
+        web.document.createElement("script") as web.HTMLScriptElement;
     script.src = cdnUrl ?? "https://unpkg.com/@vdoninja/sdk/vdoninja-sdk.js";
     script.type = "text/javascript";
     script.async = true;
@@ -279,7 +285,11 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
   }
 
   @override
-  Future<void> connect({String? host, String? room, VDONinjaPassword? password}) async {
+  Future<void> connect({
+    String? host,
+    String? room,
+    VDONinjaPassword? password,
+  }) async {
     final options = <String, dynamic>{};
     if (host != null) options["host"] = host;
     if (room != null) options["room"] = room;
@@ -293,7 +303,11 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
   void disconnect() => _jsSdk.disconnect();
 
   @override
-  Future<void> joinRoom({String? room, VDONinjaPassword? password, bool? claim}) async {
+  Future<void> joinRoom({
+    String? room,
+    VDONinjaPassword? password,
+    bool? claim,
+  }) async {
     final options = <String, dynamic>{};
     if (room != null) options["room"] = room;
     if (password != null) options["password"] = password.value;
@@ -307,7 +321,8 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
   void leaveRoom() => _jsSdk.leaveRoom();
 
   @override
-  Future<dynamic> publish(dynamic stream, {
+  Future<dynamic> publish(
+    dynamic stream, {
     String? streamID,
     String? label,
     String? room,
@@ -397,7 +412,8 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
   void stopPublishing() => _jsSdk.stopPublishing();
 
   @override
-  Future<String> quickPublish(dynamic stream, {
+  Future<String> quickPublish(
+    dynamic stream, {
     String? streamID,
     String? label,
     String? room,
@@ -450,7 +466,8 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
   void stopViewing(String streamID) => _jsSdk.stopViewing(streamID.toJS);
 
   @override
-  Future<dynamic> view(String streamID, {
+  Future<dynamic> view(
+    String streamID, {
     VDONinjaPassword? password,
     Map<String, dynamic>? preferences,
     Map<String, dynamic>? viewPreferences,
@@ -539,11 +556,15 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
       }).toJS;
     }
 
-    final jsPromise = _jsSdk.autoConnect(_mapToJSObject(options) as JSAny, jsFilter);
+    final jsPromise = _jsSdk.autoConnect(
+      _mapToJSObject(options) as JSAny,
+      jsFilter,
+    );
     final result = await jsPromise.toDart;
 
     final controllerObj = result as JSObject;
-    final finalStreamID = (controllerObj.getProperty("streamID".toJS) as JSString).toDart;
+    final finalStreamID =
+        (controllerObj.getProperty("streamID".toJS) as JSString).toDart;
     final stopFunc = controllerObj.getProperty("stop".toJS) as JSFunction;
 
     return VDONinjaAutoConnectController(
@@ -555,7 +576,8 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
   }
 
   @override
-  void sendData(dynamic data, {
+  void sendData(
+    dynamic data, {
     String? uuid,
     String? type,
     String? streamID,
@@ -585,7 +607,6 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     _jsSdk.sendData(jsData, _mapToJSObject(options));
   }
 
-
   @override
   List<Map<String, dynamic>> getStreams() {
     final jsArray = _jsSdk.getStreams();
@@ -608,7 +629,10 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
 
   // --- Helper to create and cache Event Streams ---
 
-  Stream<T> _getStream<T>(String type, T Function(web.CustomEvent event) mapEvent) {
+  Stream<T> _getStream<T>(
+    String type,
+    T Function(web.CustomEvent event) mapEvent,
+  ) {
     late final StreamController<T> controller;
     controller = StreamController<T>.broadcast(
       onListen: () {
@@ -649,7 +673,8 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
   Stream<void> get onReconnectFailed => _getStream("reconnectFailed", (_) {});
 
   @override
-  Stream<Map<String, dynamic>> get onReconnecting => _getStream("reconnecting", (event) {
+  Stream<Map<String, dynamic>> get onReconnecting =>
+      _getStream("reconnecting", (event) {
         final detail = event.detail;
         if (detail != null && detail.isA<JSObject>()) {
           return _jsObjectToMap(detail as JSObject);
@@ -658,7 +683,8 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
       });
 
   @override
-  Stream<Map<String, dynamic>> get onRoomJoined => _getStream("roomJoined", (event) {
+  Stream<Map<String, dynamic>> get onRoomJoined =>
+      _getStream("roomJoined", (event) {
         final detail = event.detail;
         if (detail != null && detail.isA<JSObject>()) {
           return _jsObjectToMap(detail as JSObject);
@@ -667,7 +693,8 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
       });
 
   @override
-  Stream<Map<String, dynamic>> get onRoomLeft => _getStream("roomLeft", (event) {
+  Stream<Map<String, dynamic>> get onRoomLeft =>
+      _getStream("roomLeft", (event) {
         final detail = event.detail;
         if (detail != null && detail.isA<JSObject>()) {
           return _jsObjectToMap(detail as JSObject);
@@ -676,7 +703,8 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
       });
 
   @override
-  Stream<Map<String, dynamic>> get onPublishing => _getStream("publishing", (event) {
+  Stream<Map<String, dynamic>> get onPublishing =>
+      _getStream("publishing", (event) {
         final detail = event.detail;
         if (detail != null && detail.isA<JSObject>()) {
           return _jsObjectToMap(detail as JSObject);
@@ -685,7 +713,8 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
       });
 
   @override
-  Stream<Map<String, dynamic>> get onViewingStopped => _getStream("viewingStopped", (event) {
+  Stream<Map<String, dynamic>> get onViewingStopped =>
+      _getStream("viewingStopped", (event) {
         final detail = event.detail;
         if (detail != null && detail.isA<JSObject>()) {
           return _jsObjectToMap(detail as JSObject);
@@ -695,39 +724,36 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
 
   @override
   Stream<VDONinjaTrackEvent> get onTrack => _getStream("track", (event) {
-        final detail = event.detail;
-        if (detail != null && detail.isA<JSObject>()) {
-          final detailObj = detail as JSObject;
-          final track = detailObj.getProperty("track".toJS);
-          final streamsAny = detailObj.getProperty("streams".toJS);
-          final uuid = detailObj.getProperty("uuid".toJS) as JSString?;
-          final streamID = detailObj.getProperty("streamID".toJS) as JSString?;
+    final detail = event.detail;
+    if (detail != null && detail.isA<JSObject>()) {
+      final detailObj = detail as JSObject;
+      final track = detailObj.getProperty("track".toJS);
+      final streamsAny = detailObj.getProperty("streams".toJS);
+      final uuid = detailObj.getProperty("uuid".toJS) as JSString?;
+      final streamID = detailObj.getProperty("streamID".toJS) as JSString?;
 
-          final streamsList = <dynamic>[];
-          if (streamsAny != null && streamsAny.isA<JSArray>()) {
-            final array = streamsAny as JSArray;
-            final dartList = array.toDart;
-            for (final item in dartList) {
-              streamsList.add(item);
-            }
-          }
-
-          return VDONinjaTrackEvent(
-            track: track,
-            streams: streamsList,
-            uuid: uuid?.toDart ?? "",
-            streamID: streamID?.toDart,
-          );
+      final streamsList = <dynamic>[];
+      if (streamsAny != null && streamsAny.isA<JSArray>()) {
+        final array = streamsAny as JSArray;
+        final dartList = array.toDart;
+        for (final item in dartList) {
+          streamsList.add(item);
         }
-        return VDONinjaTrackEvent(
-          track: null,
-          streams: [],
-          uuid: "",
-        );
-      });
+      }
+
+      return VDONinjaTrackEvent(
+        track: track,
+        streams: streamsList,
+        uuid: uuid?.toDart ?? "",
+        streamID: streamID?.toDart,
+      );
+    }
+    return VDONinjaTrackEvent(track: null, streams: [], uuid: "");
+  });
 
   @override
-  Stream<VDONinjaDataReceivedEvent> get onDataReceived => _getStream("dataReceived", (event) {
+  Stream<VDONinjaDataReceivedEvent> get onDataReceived =>
+      _getStream("dataReceived", (event) {
         final detail = event.detail;
         if (detail != null && detail.isA<JSObject>()) {
           final detailObj = detail as JSObject;
@@ -741,14 +767,12 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
             streamID: streamID?.toDart,
           );
         }
-        return VDONinjaDataReceivedEvent(
-          data: null,
-          uuid: "",
-        );
+        return VDONinjaDataReceivedEvent(data: null, uuid: "");
       });
 
   @override
-  Stream<Map<String, dynamic>> get onPeerConnected => _getStream("peerConnected", (event) {
+  Stream<Map<String, dynamic>> get onPeerConnected =>
+      _getStream("peerConnected", (event) {
         final detail = event.detail;
         if (detail != null && detail.isA<JSObject>()) {
           final detailObj = detail as JSObject;
@@ -759,7 +783,8 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
       });
 
   @override
-  Stream<VDONinjaPeerLatencyEvent> get onPeerLatency => _getStream("peerLatency", (event) {
+  Stream<VDONinjaPeerLatencyEvent> get onPeerLatency =>
+      _getStream("peerLatency", (event) {
         final detail = event.detail;
         if (detail != null && detail.isA<JSObject>()) {
           final detailObj = detail as JSObject;
@@ -773,14 +798,12 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
             streamID: streamID?.toDart,
           );
         }
-        return VDONinjaPeerLatencyEvent(
-          uuid: "",
-          latency: 0,
-        );
+        return VDONinjaPeerLatencyEvent(uuid: "", latency: 0);
       });
 
   @override
-  Stream<VDONinjaPeerInfoEvent> get onPeerInfo => _getStream("peerInfo", (event) {
+  Stream<VDONinjaPeerInfoEvent> get onPeerInfo =>
+      _getStream("peerInfo", (event) {
         final detail = event.detail;
         if (detail != null && detail.isA<JSObject>()) {
           final detailObj = detail as JSObject;
@@ -794,10 +817,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
             info: info != null ? _jsObjectToMap(info) : <String, dynamic>{},
           );
         }
-        return VDONinjaPeerInfoEvent(
-          uuid: "",
-          info: <String, dynamic>{},
-        );
+        return VDONinjaPeerInfoEvent(uuid: "", info: <String, dynamic>{});
       });
 
   @override
@@ -810,7 +830,8 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
           final trackId = detailObj.getProperty("trackId".toJS) as JSString?;
           final streamID = detailObj.getProperty("streamID".toJS) as JSString?;
           final uuid = detailObj.getProperty("uuid".toJS) as JSString?;
-          final connectionType = detailObj.getProperty("connectionType".toJS) as JSString?;
+          final connectionType =
+              detailObj.getProperty("connectionType".toJS) as JSString?;
 
           return VDONinjaRemoteVideoMuteStateEvent(
             muted: muted?.toDart ?? false,
@@ -829,21 +850,22 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
 
   @override
   Stream<VDONinjaErrorEvent> get onError => _getStream("error", (event) {
-        final detail = event.detail;
-        if (detail != null && detail.isA<JSObject>()) {
-          final detailObj = detail as JSObject;
-          final message = detailObj.getProperty("error".toJS) as JSString? ??
-              detailObj.getProperty("message".toJS) as JSString? ??
-              "Unknown error".toJS;
-          final details = detailObj.getProperty("details".toJS);
+    final detail = event.detail;
+    if (detail != null && detail.isA<JSObject>()) {
+      final detailObj = detail as JSObject;
+      final message =
+          detailObj.getProperty("error".toJS) as JSString? ??
+          detailObj.getProperty("message".toJS) as JSString? ??
+          "Unknown error".toJS;
+      final details = detailObj.getProperty("details".toJS);
 
-          return VDONinjaErrorEvent(
-            message: message.toDart,
-            details: _jsAnyToDart(details),
-          );
-        }
-        return VDONinjaErrorEvent(message: "Unknown error");
-      });
+      return VDONinjaErrorEvent(
+        message: message.toDart,
+        details: _jsAnyToDart(details),
+      );
+    }
+    return VDONinjaErrorEvent(message: "Unknown error");
+  });
 }
 
 /// Helper function to create an SDK instance on the Web platform.
@@ -903,4 +925,5 @@ VDONinjaSDK createSDK({
 bool get isSDKLoaded => VDONinjaSDKWeb.isSDKLoaded;
 
 /// Web function for script initialization.
-Future<void> initialize({String? cdnUrl}) => VDONinjaSDKWeb.initialize(cdnUrl: cdnUrl);
+Future<void> initialize({String? cdnUrl}) =>
+    VDONinjaSDKWeb.initialize(cdnUrl: cdnUrl);

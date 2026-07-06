@@ -1,4 +1,4 @@
-# vdoninja_sdk
+# VDO.Ninja SDK Dart
 
 A high-performance Flutter package providing a type-safe Dart wrapper around the official **VDO.Ninja SDK** (formerly OBS.Ninja) JavaScript library.
 

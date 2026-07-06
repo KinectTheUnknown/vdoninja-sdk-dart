@@ -31,18 +31,18 @@ void main() {
       final sdk = VDONinjaSDK(
         host: "wss://test.vdo.ninja",
         room: "test_room",
-        password: VDONinjaPassword.disable,
-        turnServers: VDONinjaTurnServers.list([
-          VDONinjaIceServer(urls: ["turn:test.vdo.ninja:443"]),
-          const VDONinjaIceServer.object({
+        password: .disable,
+        turnServers: .list([
+          .new(urls: ["turn:test.vdo.ninja:443"]),
+          const .object({
             "urls": "stun:test2.vdo.ninja:3478",
             "username": "user",
           }),
         ]),
         stunServers: [
-          VDONinjaIceServer(urls: ["stun:stun.l.google.com:19302"]),
+          .new(urls: ["stun:stun.l.google.com:19302"]),
         ],
-        allowChunked: const VDONinjaAllowChunked.integer(16384),
+        allowChunked: .integer(16384),
         debug: true,
       );
 

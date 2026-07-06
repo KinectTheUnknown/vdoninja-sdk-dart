@@ -93,7 +93,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     VDONinjaTurnServers? turnServers,
     bool? forceTURN,
     int? turnCacheTTL,
-    List<Map<String, dynamic>>? stunServers,
+    List<VDONinjaIceServer>? stunServers,
     int? maxReconnectAttempts,
     int? reconnectDelay,
     bool? autoPingViewer,
@@ -143,7 +143,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     VDONinjaTurnServers? turnServers,
     bool? forceTURN,
     int? turnCacheTTL,
-    List<Map<String, dynamic>>? stunServers,
+    List<VDONinjaIceServer>? stunServers,
     int? maxReconnectAttempts,
     int? reconnectDelay,
     bool? autoPingViewer,
@@ -169,10 +169,19 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     if (room != null) options["room"] = room;
     if (password != null) options["password"] = password.value;
     if (debug != null) options["debug"] = debug;
-    if (turnServers != null) options["turnServers"] = turnServers.value;
+    if (turnServers != null) {
+      final val = turnServers.value;
+      if (val is List<VDONinjaIceServer>) {
+        options["turnServers"] = val.map((s) => s.value).toList();
+      } else {
+        options["turnServers"] = val;
+      }
+    }
     if (forceTURN != null) options["forceTURN"] = forceTURN;
     if (turnCacheTTL != null) options["turnCacheTTL"] = turnCacheTTL;
-    if (stunServers != null) options["stunServers"] = stunServers;
+    if (stunServers != null) {
+      options["stunServers"] = stunServers.map((s) => s.value).toList();
+    }
     if (maxReconnectAttempts != null) options["maxReconnectAttempts"] = maxReconnectAttempts;
     if (reconnectDelay != null) options["reconnectDelay"] = reconnectDelay;
     if (autoPingViewer != null) options["autoPingViewer"] = autoPingViewer;
@@ -846,7 +855,7 @@ VDONinjaSDK createSDK({
   VDONinjaTurnServers? turnServers,
   bool? forceTURN,
   int? turnCacheTTL,
-  List<Map<String, dynamic>>? stunServers,
+  List<VDONinjaIceServer>? stunServers,
   int? maxReconnectAttempts,
   int? reconnectDelay,
   bool? autoPingViewer,

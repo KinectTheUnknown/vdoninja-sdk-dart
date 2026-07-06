@@ -1,6 +1,8 @@
 import "dart:async";
+import "package:collection/collection.dart";
 import "vdoninja_sdk_stub.dart"
-    if (dart.library.js_interop) "vdoninja_sdk_web.dart" as platform;
+    if (dart.library.js_interop) "vdoninja_sdk_web.dart"
+    as platform;
 
 /// Base class for all VDO.Ninja SDK events.
 abstract class VDONinjaEvent {
@@ -37,7 +39,8 @@ class VDONinjaTrackEvent extends VDONinjaEvent {
   }) : super("track");
 
   @override
-  String toString() => "VDONinjaTrackEvent(uuid: $uuid, streamID: $streamID, track: $track)";
+  String toString() =>
+      "VDONinjaTrackEvent(uuid: $uuid, streamID: $streamID, track: $track)";
 }
 
 /// Event fired when generic P2P data is received.
@@ -63,7 +66,8 @@ class VDONinjaDataReceivedEvent extends VDONinjaEvent {
   }) : super("dataReceived");
 
   @override
-  String toString() => "VDONinjaDataReceivedEvent(uuid: $uuid, streamID: $streamID, data: $data)";
+  String toString() =>
+      "VDONinjaDataReceivedEvent(uuid: $uuid, streamID: $streamID, data: $data)";
 }
 
 /// Event fired when a peer's round-trip latency updates.
@@ -89,7 +93,8 @@ class VDONinjaPeerLatencyEvent extends VDONinjaEvent {
   }) : super("peerLatency");
 
   @override
-  String toString() => "VDONinjaPeerLatencyEvent(uuid: $uuid, streamID: $streamID, latency: ${latency}ms)";
+  String toString() =>
+      "VDONinjaPeerLatencyEvent(uuid: $uuid, streamID: $streamID, latency: ${latency}ms)";
 }
 
 /// Event fired when a peer's metadata/info updates.
@@ -115,7 +120,8 @@ class VDONinjaPeerInfoEvent extends VDONinjaEvent {
   }) : super("peerInfo");
 
   @override
-  String toString() => "VDONinjaPeerInfoEvent(uuid: $uuid, streamID: $streamID, info: $info)";
+  String toString() =>
+      "VDONinjaPeerInfoEvent(uuid: $uuid, streamID: $streamID, info: $info)";
 }
 
 /// Event fired when a remote peer's video mute state changes.
@@ -153,7 +159,8 @@ class VDONinjaRemoteVideoMuteStateEvent extends VDONinjaEvent {
   }) : super("remoteVideoMuteState");
 
   @override
-  String toString() => "VDONinjaRemoteVideoMuteStateEvent(uuid: $uuid, muted: $muted, connectionType: $connectionType)";
+  String toString() =>
+      "VDONinjaRemoteVideoMuteStateEvent(uuid: $uuid, muted: $muted, connectionType: $connectionType)";
 }
 
 /// Event fired when an SDK error occurs.
@@ -173,7 +180,8 @@ class VDONinjaErrorEvent extends VDONinjaEvent {
   }) : super("error");
 
   @override
-  String toString() => "VDONinjaErrorEvent(message: $message, details: $details)";
+  String toString() =>
+      "VDONinjaErrorEvent(message: $message, details: $details)";
 }
 
 /// Represents the password parameter for VDO.Ninja SDK.
@@ -187,10 +195,12 @@ sealed class VDONinjaPassword {
   const VDONinjaPassword();
 
   /// Enable AES-CBC encryption with the specified room password.
-  const factory VDONinjaPassword.string(String password) = VDONinjaPasswordString;
+  const factory VDONinjaPassword.string(String password) =
+      VDONinjaPasswordString;
 
   /// Set the password via a boolean value. Pass `false` to explicitly disable encryption.
-  const factory VDONinjaPassword.boolean(bool enabled) = VDONinjaPasswordBoolean;
+  const factory VDONinjaPassword.boolean(bool enabled) =
+      VDONinjaPasswordBoolean;
 
   /// Explicitly disable encryption.
   static const VDONinjaPassword disable = VDONinjaPasswordBoolean(false);
@@ -198,7 +208,9 @@ sealed class VDONinjaPassword {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is VDONinjaPassword && runtimeType == other.runtimeType && value == other.value;
+      other is VDONinjaPassword &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
 
   @override
   int get hashCode => value.hashCode;
@@ -222,6 +234,60 @@ class VDONinjaPasswordBoolean extends VDONinjaPassword {
   String toString() => "VDONinjaPassword.boolean($value)";
 }
 
+/// Represents a WebRTC ICE/STUN/TURN server configuration.
+sealed class VDONinjaIceServer {
+  /// The underlying JS-compatible value.
+  dynamic get value;
+
+  const VDONinjaIceServer._();
+
+  /// Standard type-safe ICE server configuration.
+  factory VDONinjaIceServer({
+    required List<String> urls,
+    String? username,
+    String? credential,
+  }) = VDONinjaIceServerConfig;
+
+  /// Escape hatch to pass a raw JSON Object (Map) directly.
+  const factory VDONinjaIceServer.object(Map<String, dynamic> raw) =
+      VDONinjaIceServerObject;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is VDONinjaIceServer &&
+          runtimeType == other.runtimeType &&
+          const DeepCollectionEquality().equals(value, other.value);
+
+  @override
+  int get hashCode => const DeepCollectionEquality().hash(value);
+}
+
+class VDONinjaIceServerConfig extends VDONinjaIceServerObject {
+  VDONinjaIceServerConfig({
+    required List<String> urls,
+    String? username,
+    String? credential,
+  }) : super({
+          "urls": urls,
+          "username": ?username,
+          "credential": ?credential,
+        });
+
+  @override
+  String toString() =>
+      "VDONinjaIceServer(urls: ${value['urls']}, username: ${value['username']}, credential: ${value['credential']})";
+}
+
+class VDONinjaIceServerObject extends VDONinjaIceServer {
+  @override
+  final Map<String, dynamic> value;
+  const VDONinjaIceServerObject(this.value) : super._();
+
+  @override
+  String toString() => "VDONinjaIceServer.object($value)";
+}
+
 /// Represents the custom TURN servers configuration option.
 ///
 /// Can be a [bool] (specifically `false`) to disable TURN servers,
@@ -233,7 +299,8 @@ sealed class VDONinjaTurnServers {
   const VDONinjaTurnServers();
 
   /// Provide a custom list of TURN server configuration maps.
-  const factory VDONinjaTurnServers.list(List<Map<String, dynamic>> servers) = VDONinjaTurnServersList;
+  const factory VDONinjaTurnServers.list(List<VDONinjaIceServer> servers) =
+      VDONinjaTurnServersList;
 
   /// Disable TURN servers explicitly.
   static const VDONinjaTurnServers disable = VDONinjaTurnServersBoolean(false);
@@ -241,10 +308,12 @@ sealed class VDONinjaTurnServers {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is VDONinjaTurnServers && runtimeType == other.runtimeType && value == other.value;
+      other is VDONinjaTurnServers &&
+          runtimeType == other.runtimeType &&
+          const DeepCollectionEquality().equals(value, other.value);
 
   @override
-  int get hashCode => value.hashCode;
+  int get hashCode => const DeepCollectionEquality().hash(value);
 }
 
 class VDONinjaTurnServersBoolean extends VDONinjaTurnServers {
@@ -258,7 +327,7 @@ class VDONinjaTurnServersBoolean extends VDONinjaTurnServers {
 
 class VDONinjaTurnServersList extends VDONinjaTurnServers {
   @override
-  final List<Map<String, dynamic>> value;
+  final List<VDONinjaIceServer> value;
   const VDONinjaTurnServersList(this.value);
 
   @override
@@ -276,15 +345,19 @@ sealed class VDONinjaAllowChunked {
   const VDONinjaAllowChunked();
 
   /// Enable or disable chunked data transmission.
-  const factory VDONinjaAllowChunked.boolean(bool enabled) = VDONinjaAllowChunkedBoolean;
+  const factory VDONinjaAllowChunked.boolean(bool enabled) =
+      VDONinjaAllowChunkedBoolean;
 
   /// Enable chunked data transmission with a specific block size.
-  const factory VDONinjaAllowChunked.integer(int size) = VDONinjaAllowChunkedInteger;
+  const factory VDONinjaAllowChunked.integer(int size) =
+      VDONinjaAllowChunkedInteger;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is VDONinjaAllowChunked && runtimeType == other.runtimeType && value == other.value;
+      other is VDONinjaAllowChunked &&
+          runtimeType == other.runtimeType &&
+          value == other.value;
 
   @override
   int get hashCode => value.hashCode;
@@ -342,7 +415,7 @@ abstract class VDONinjaSDK {
     int? turnCacheTTL,
 
     /// Custom list of STUN server configurations.
-    List<Map<String, dynamic>>? stunServers,
+    List<VDONinjaIceServer>? stunServers,
 
     /// Maximum number of WebSocket reconnection attempts.
     int? maxReconnectAttempts,
@@ -422,7 +495,8 @@ abstract class VDONinjaSDK {
   ///
   /// On Web, this appends a `<script>` tag referencing [cdnUrl] (default is unpkg).
   /// On other platforms, this is a no-op that resolves immediately.
-  static Future<void> initialize({String? cdnUrl}) => platform.initialize(cdnUrl: cdnUrl);
+  static Future<void> initialize({String? cdnUrl}) =>
+      platform.initialize(cdnUrl: cdnUrl);
 
   // --- SDK State Getters ---
 
@@ -449,7 +523,11 @@ abstract class VDONinjaSDK {
   /// Connect to the signaling server.
   ///
   /// Can optionally override [host], [room], or [password].
-  Future<void> connect({String? host, String? room, VDONinjaPassword? password});
+  Future<void> connect({
+    String? host,
+    String? room,
+    VDONinjaPassword? password,
+  });
 
   /// Disconnect from the signaling server, closing all peer connections and data channels.
   void disconnect();
@@ -458,7 +536,11 @@ abstract class VDONinjaSDK {
   ///
   /// Requires a [room] name. Hashing is automatically done if [password] is set.
   /// Set [claim] to true to request director status.
-  Future<void> joinRoom({String? room, VDONinjaPassword? password, bool? claim});
+  Future<void> joinRoom({
+    String? room,
+    VDONinjaPassword? password,
+    bool? claim,
+  });
 
   /// Leave the current room.
   void leaveRoom();
@@ -467,7 +549,8 @@ abstract class VDONinjaSDK {
   ///
   /// On web, [stream] must be a `web.MediaStream`.
   /// Returns a Future that resolves with publisher details.
-  Future<dynamic> publish(dynamic stream, {
+  Future<dynamic> publish(
+    dynamic stream, {
     String? streamID,
     String? label,
     String? room,
@@ -513,7 +596,8 @@ abstract class VDONinjaSDK {
   /// Quick publish method - connects, joins a room, and publishes in one call.
   ///
   /// Returns a Future resolving to the stream ID.
-  Future<String> quickPublish(dynamic stream, {
+  Future<String> quickPublish(
+    dynamic stream, {
     String? streamID,
     String? label,
     String? room,
@@ -538,7 +622,8 @@ abstract class VDONinjaSDK {
   /// View a specific stream ID.
   ///
   /// Returns a Future that resolves with the RTCPeerConnection of the viewer (on web, `web.RTCPeerConnection`).
-  Future<dynamic> view(String streamID, {
+  Future<dynamic> view(
+    String streamID, {
     VDONinjaPassword? password,
     Map<String, dynamic>? preferences,
     Map<String, dynamic>? viewPreferences,
@@ -592,7 +677,8 @@ abstract class VDONinjaSDK {
   ///
   /// If [uuid] is provided, sends to that peer. If [type] is 'viewer' or 'publisher',
   /// targets specific channel types.
-  void sendData(dynamic data, {
+  void sendData(
+    dynamic data, {
     String? uuid,
     String? type,
     String? streamID,
@@ -673,4 +759,3 @@ class VDONinjaAutoConnectController {
   /// Stop the auto-connect session, removing all event listeners.
   void stop() => _stopCallback();
 }
-

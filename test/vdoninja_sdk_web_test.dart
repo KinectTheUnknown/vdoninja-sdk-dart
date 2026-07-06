@@ -1,4 +1,6 @@
 @TestOn("browser")
+library;
+
 import "package:flutter_test/flutter_test.dart";
 import "package:web/web.dart" as web;
 import "package:vdoninja_sdk/vdoninja_sdk.dart";

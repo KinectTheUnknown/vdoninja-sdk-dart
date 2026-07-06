@@ -123,6 +123,51 @@ sdk.sendData(
 );
 ```
 
+### 6. WHIP & WHEP Standalone Clients
+The package also includes standalone wrapper support for the standard WebRTC-HTTP Ingestion Protocol (WHIP) and WebRTC-HTTP Egress Protocol (WHEP) clients. These are isolated modules that do not use the VDO.Ninja WebSocket signaling system.
+
+#### WHIP Client (Publishing/Ingestion)
+To push video/audio streams to any WHIP-compatible server (e.g. Twitch, Cloudflare Stream, Dolby.io, or Meshcast.io):
+
+```dart
+import "package:vdoninja_sdk/whip_client.dart";
+
+// Initialize the library
+await WHIPClient.initialize();
+
+final whip = WHIPClient(
+  endpoint: "https://your-whip-endpoint.com/stream",
+  videoCodec: "h264",
+);
+
+whip.onConnected.listen((_) => print("WHIP Ingest Connected!"));
+whip.onError.listen((e) => print("WHIP Ingest Error: $e"));
+
+// Publish a MediaStream
+await whip.publish(mediaStream);
+```
+
+#### WHEP Client (Subscribing/Playback)
+To play back live streams from any WHEP-compatible player URL:
+
+```dart
+import "package:vdoninja_sdk/whep_client.dart";
+
+// Initialize the library
+await WHEPClient.initialize();
+
+final whep = WHEPClient(
+  endpoint: "https://your-whep-endpoint.com/stream",
+);
+
+whep.onTrack.listen((event) {
+  // Access and play the remote stream/track
+});
+
+// Start viewing
+await whep.view();
+```
+
 ## Additional information
 
 ### Running on Mobile & Desktop Platforms

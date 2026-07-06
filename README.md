@@ -2,6 +2,8 @@
 
 A high-performance Flutter package providing a type-safe Dart wrapper around the official **VDO.Ninja SDK** (formerly OBS.Ninja) JavaScript library.
 
+This package is a Dart wrapper around the official [VDO.Ninja JS SDK](https://github.com/steveseguin/vdo.ninja) created and maintained by [Steve Seguin](https://github.com/steveseguin).
+
 This package allows Flutter Web applications to easily integrate low-latency WebRTC peer-to-peer audio, video, and data channels. By design, the package does not recreate any WebRTC or signaling logic in Dart; instead, it delegates all streaming operations to the official VDO.Ninja JS script.
 
 ## Features
@@ -177,3 +179,13 @@ To use this SDK on non-web platforms (like iOS/Android/Windows/Mac):
 1. Embed a WebView widget (e.g., using `webview_flutter` or `flutter_inappwebview`) loading an HTML page that includes the `vdoninja-sdk.js` script.
 2. Communicate between your Dart application and the WebView using JavaScript Channels (postMessage/evalJavaScript).
 3. The package includes safe stubs for all platform targets, allowing you to compile your code on all devices. Calling SDK methods on native platforms will throw an `UnsupportedError` to prevent silent failures.
+
+## Credits & Attribution
+
+This package is a community-driven wrapper and is not officially affiliated with the core VDO.Ninja project.
+
+- **Original Author & Creator**: [Steve Seguin](https://github.com/steveseguin)
+- **Official VDO.Ninja Website**: [vdo.ninja](https://vdo.ninja)
+- **Official GitHub Repository**: [steveseguin/vdo.ninja](https://github.com/steveseguin/vdo.ninja)
+- **Official JS SDK on NPM**: [@vdoninja/sdk](https://www.npmjs.com/package/@vdoninja/sdk)
+

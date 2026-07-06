@@ -48,7 +48,17 @@ Create an instance of the SDK and connect to the VDO.Ninja signaling server:
 ```dart
 final sdk = VDONinjaSDK(
   debug: true,
-  password: "myRoomSecretPassword", // Automatically hashes the room and encrypts SDP/ICE
+  password: const VDONinjaPassword.string("myRoomSecretPassword"), // Automatically hashes the room and encrypts SDP/ICE
+  stunServers: const [
+    VDONinjaIceServer(urls: ["stun:stun.l.google.com:19302"]),
+  ],
+  turnServers: const VDONinjaTurnServers.list([
+    VDONinjaIceServer(
+      urls: ["turn:my-turn-server.com:443"],
+      username: "user",
+      credential: "password",
+    ),
+  ]),
 );
 
 // Subscribe to connection states

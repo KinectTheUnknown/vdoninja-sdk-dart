@@ -233,7 +233,7 @@ sealed class VDONinjaTurnServers {
   const VDONinjaTurnServers();
 
   /// Provide a custom list of TURN server configuration maps.
-  const factory VDONinjaTurnServers.custom(List<Map<String, dynamic>> servers) = VDONinjaTurnServersList;
+  const factory VDONinjaTurnServers.list(List<Map<String, dynamic>> servers) = VDONinjaTurnServersList;
 
   /// Disable TURN servers explicitly.
   static const VDONinjaTurnServers disable = VDONinjaTurnServersBoolean(false);
@@ -279,7 +279,7 @@ sealed class VDONinjaAllowChunked {
   const factory VDONinjaAllowChunked.boolean(bool enabled) = VDONinjaAllowChunkedBoolean;
 
   /// Enable chunked data transmission with a specific block size.
-  const factory VDONinjaAllowChunked.blockSize(int size) = VDONinjaAllowChunkedInteger;
+  const factory VDONinjaAllowChunked.integer(int size) = VDONinjaAllowChunkedInteger;
 
   @override
   bool operator ==(Object other) =>

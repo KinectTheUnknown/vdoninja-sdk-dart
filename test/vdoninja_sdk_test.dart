@@ -33,7 +33,7 @@ void main() {
         room: "test_room",
         password: VDONinjaPassword.disable,
         turnServers: VDONinjaTurnServers.disable,
-        allowChunked: const VDONinjaAllowChunked.blockSize(16384),
+        allowChunked: const VDONinjaAllowChunked.integer(16384),
         debug: true,
       );
 

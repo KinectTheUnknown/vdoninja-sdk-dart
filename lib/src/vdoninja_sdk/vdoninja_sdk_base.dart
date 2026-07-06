@@ -262,7 +262,7 @@ class VDONinjaTurnServersList extends VDONinjaTurnServers {
   const VDONinjaTurnServersList(this.value);
 
   @override
-  String toString() => "VDONinjaTurnServers.custom($value)";
+  String toString() => "VDONinjaTurnServers.list($value)";
 }
 
 /// Represents the chunked transmission configuration option.
@@ -305,7 +305,7 @@ class VDONinjaAllowChunkedInteger extends VDONinjaAllowChunked {
   const VDONinjaAllowChunkedInteger(this.value);
 
   @override
-  String toString() => "VDONinjaAllowChunked.blockSize($value)";
+  String toString() => "VDONinjaAllowChunked.integer($value)";
 }
 
 /// The base abstract class for the VDO.Ninja SDK.

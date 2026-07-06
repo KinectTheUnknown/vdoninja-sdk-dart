@@ -609,15 +609,12 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
 
   @override
   List<Map<String, dynamic>> getStreams() {
-    final jsArray = _jsSdk.getStreams();
-    final list = <Map<String, dynamic>>[];
-    final dartList = jsArray.toDart;
-    for (final item in dartList) {
-      if (item != null && item.isA<JSObject>()) {
-        list.add(_jsObjectToMap(item as JSObject));
-      }
-    }
-    return list;
+    return _jsSdk
+        .getStreams()
+        .toDart
+        .where((item) => item != null && item.isA<JSObject>())
+        .map((item) => _jsObjectToMap(item as JSObject))
+        .toList();
   }
 
   @override
@@ -731,15 +728,9 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
       final streamsAny = detailObj.getProperty("streams".toJS);
       final uuid = detailObj.getProperty("uuid".toJS) as JSString?;
       final streamID = detailObj.getProperty("streamID".toJS) as JSString?;
-
-      final streamsList = <dynamic>[];
-      if (streamsAny != null && streamsAny.isA<JSArray>()) {
-        final array = streamsAny as JSArray;
-        final dartList = array.toDart;
-        for (final item in dartList) {
-          streamsList.add(item);
-        }
-      }
+      final streamsList = streamsAny != null && streamsAny.isA<JSArray>()
+          ? List<dynamic>.from((streamsAny as JSArray).toDart)
+          : <dynamic>[];
 
       return VDONinjaTrackEvent(
         track: track,

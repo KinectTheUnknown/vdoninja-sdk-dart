@@ -197,6 +197,7 @@ Future<void> initializeWHEP({String? cdnUrl}) async {
   script.src = cdnUrl ?? "https://cdn.jsdelivr.net/gh/steveseguin/ninjasdk@latest/whep-client.js";
   script.type = "text/javascript";
   script.async = true;
+  script.crossOrigin = "anonymous";
 
   script.onload = (web.Event event) {
     completer.complete();

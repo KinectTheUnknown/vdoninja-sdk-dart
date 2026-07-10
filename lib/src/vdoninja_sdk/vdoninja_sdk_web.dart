@@ -220,6 +220,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     script.src = cdnUrl ?? "https://unpkg.com/@vdoninja/sdk/vdoninja-sdk.js";
     script.type = "text/javascript";
     script.async = true;
+    script.crossOrigin = "anonymous";
 
     script.onload = (web.Event event) {
       completer.complete();

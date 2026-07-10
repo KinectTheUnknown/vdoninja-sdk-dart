@@ -31,11 +31,12 @@ dynamic _jsAnyToDart(JSAny? value) {
   if (value.isA<JSString>()) return (value as JSString).toDart;
   if (value.isA<JSArray>()) {
     final dartList = (value as JSArray).toDart;
-    return List<dynamic>.generate(
-      dartList.length,
-      (i) => _jsAnyToDart(dartList[i]),
-      growable: true,
-    );
+    final length = dartList.length;
+    final list = List<dynamic>.filled(length, null, growable: true);
+    for (var i = 0; i < length; i++) {
+      list[i] = _jsAnyToDart(dartList[i]);
+    }
+    return list;
   }
   if (value.isA<JSObject>()) {
     try {

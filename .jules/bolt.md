@@ -1,0 +1,3 @@
+## 2024-07-09 - JS Array parsing memory allocation
+**Learning:** Calling `List<dynamic>.generate` relies on dynamic memory allocation mapping for each array element, which creates significant execution overhead on `JSArray` conversions in dart:js_interop logic. Pre-allocating a fixed `List<dynamic>.filled(length, null)` buffer and indexing manually runs faster and scales better. We shouldn't use `JSON.stringify()` serialization due to data loss of non-stringifiable elements like `NaN`, `Infinity` and JS Functions when iterating array indices in Flutter web boundaries.
+**Action:** Always prefer statically pre-allocated lists `List.filled(length)` over `List.generate()` when traversing large JavaScript arrays across Dart JS interop.

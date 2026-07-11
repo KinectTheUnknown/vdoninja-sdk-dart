@@ -16,7 +16,7 @@ JSObject _mapToJSObject(Map<String, dynamic> map) {
 @JS("WHIPClient")
 extension type WHIPClientJS._(JSObject _) implements JSObject {
   external WHIPClientJS(JSString endpoint, [JSObject? options]);
-  
+
   external JSPromise publish(JSObject stream);
   external JSPromise replaceTrack(JSObject oldTrack, JSObject newTrack);
   external void stop();
@@ -30,6 +30,7 @@ extension type WHIPClientJS._(JSObject _) implements JSObject {
 /// Web-specific implementation of the WHIPClient.
 class WHIPClientWeb implements WHIPClient {
   final WHIPClientJS _jsClient;
+  final Map<String, StreamController> _controllers = {};
   final Map<String, JSFunction> _jsCallbacks = {};
 
   WHIPClientWeb({
@@ -40,13 +41,13 @@ class WHIPClientWeb implements WHIPClient {
     int? audioBitrate,
     bool? trickleIce,
   }) : _jsClient = _createJsInstance(
-          endpoint: endpoint,
-          authToken: authToken,
-          videoCodec: videoCodec,
-          videoBitrate: videoBitrate,
-          audioBitrate: audioBitrate,
-          trickleIce: trickleIce,
-        );
+         endpoint: endpoint,
+         authToken: authToken,
+         videoCodec: videoCodec,
+         videoBitrate: videoBitrate,
+         audioBitrate: audioBitrate,
+         trickleIce: trickleIce,
+       );
 
   static WHIPClientJS _createJsInstance({
     required String endpoint,
@@ -57,7 +58,9 @@ class WHIPClientWeb implements WHIPClient {
     bool? trickleIce,
   }) {
     if (!isWHIPLibraryLoaded) {
-      throw StateError("WHIPClient library has not been loaded. Call WHIPClient.initialize() first.");
+      throw StateError(
+        "WHIPClient library has not been loaded. Call WHIPClient.initialize() first.",
+      );
     }
 
     final options = <String, dynamic>{};
@@ -91,7 +94,9 @@ class WHIPClientWeb implements WHIPClient {
       jsOldTrack = oldTrack as JSObject;
       jsNewTrack = newTrack as JSObject;
     } catch (_) {
-      throw ArgumentError("tracks must be JSObjects representing MediaStreamTracks");
+      throw ArgumentError(
+        "tracks must be JSObjects representing MediaStreamTracks",
+      );
     }
 
     final jsPromise = _jsClient.replaceTrack(jsOldTrack, jsNewTrack);
@@ -115,6 +120,9 @@ class WHIPClientWeb implements WHIPClient {
   }
 
   Stream<T> _getStream<T>(String type, T Function(web.Event event) mapEvent) {
+    if (_controllers.containsKey(type)) {
+      return _controllers[type]!.stream as Stream<T>;
+    }
     late final StreamController<T> controller;
     controller = StreamController<T>.broadcast(
       onListen: () {
@@ -136,6 +144,7 @@ class WHIPClientWeb implements WHIPClient {
         }
       },
     );
+    _controllers[type] = controller;
     return controller.stream;
   }
 
@@ -147,17 +156,18 @@ class WHIPClientWeb implements WHIPClient {
 
   @override
   Stream<String> get onIceState => _getStream("icestate", (event) {
-        if (event.hasProperty("detail".toJS).toDart) {
-          final detail = event.getProperty("detail".toJS);
-          if (detail != null && detail.isA<JSString>()) {
-            return (detail as JSString).toDart;
-          }
-        }
-        return "unknown";
-      });
+    if (event.hasProperty("detail".toJS).toDart) {
+      final detail = event.getProperty("detail".toJS);
+      if (detail != null && detail.isA<JSString>()) {
+        return (detail as JSString).toDart;
+      }
+    }
+    return "unknown";
+  });
 
   @override
-  Stream<String> get onConnectionState => _getStream("connectionstate", (event) {
+  Stream<String> get onConnectionState =>
+      _getStream("connectionstate", (event) {
         if (event.hasProperty("detail".toJS).toDart) {
           final detail = event.getProperty("detail".toJS);
           if (detail != null && detail.isA<JSString>()) {
@@ -169,11 +179,11 @@ class WHIPClientWeb implements WHIPClient {
 
   @override
   Stream<dynamic> get onError => _getStream("error", (event) {
-        if (event.hasProperty("detail".toJS).toDart) {
-          return event.getProperty("detail".toJS);
-        }
-        return event;
-      });
+    if (event.hasProperty("detail".toJS).toDart) {
+      return event.getProperty("detail".toJS);
+    }
+    return event;
+  });
 
   @override
   Stream<void> get onDisconnected => _getStream("disconnected", (_) {});
@@ -202,14 +212,17 @@ WHIPClient createWHIPClient({
 }
 
 /// Library status check.
-bool get isWHIPLibraryLoaded => web.window.hasProperty("WHIPClient".toJS).toDart;
+bool get isWHIPLibraryLoaded =>
+    web.window.hasProperty("WHIPClient".toJS).toDart;
 
 /// Dynamically loads the WHIP Client JavaScript.
 Future<void> initializeWHIP({String? cdnUrl}) async {
   if (isWHIPLibraryLoaded) return;
   final completer = Completer<void>();
   final script = web.document.createElement("script") as web.HTMLScriptElement;
-  script.src = cdnUrl ?? "https://cdn.jsdelivr.net/gh/steveseguin/ninjasdk@latest/whip-client.js";
+  script.src =
+      cdnUrl ??
+      "https://cdn.jsdelivr.net/gh/steveseguin/ninjasdk@latest/whip-client.js";
   script.type = "text/javascript";
   script.async = true;
   script.crossOrigin = "anonymous";
@@ -219,7 +232,9 @@ Future<void> initializeWHIP({String? cdnUrl}) async {
   }.toJS;
 
   script.onerror = (web.Event event) {
-    completer.completeError(Exception("Failed to load WHIPClient script from ${script.src}"));
+    completer.completeError(
+      Exception("Failed to load WHIPClient script from ${script.src}"),
+    );
   }.toJS;
 
   web.document.head!.appendChild(script);

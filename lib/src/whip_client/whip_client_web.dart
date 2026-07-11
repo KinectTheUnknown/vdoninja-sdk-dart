@@ -209,7 +209,7 @@ Future<void> initializeWHIP({String? cdnUrl}) async {
   if (isWHIPLibraryLoaded) return;
   final completer = Completer<void>();
   final script = web.document.createElement("script") as web.HTMLScriptElement;
-  script.src = cdnUrl ?? "https://cdn.jsdelivr.net/gh/steveseguin/ninjasdk@latest/whip-client.js";
+  script.src = cdnUrl ?? "https://cdn.jsdelivr.net/gh/steveseguin/ninjasdk@v1.3.18/whip-client.js";
   script.type = "text/javascript";
   script.async = true;
   script.crossOrigin = "anonymous";

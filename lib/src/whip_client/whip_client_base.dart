@@ -1,6 +1,7 @@
 import "dart:async";
 import "whip_client_stub.dart"
-    if (dart.library.js_interop) "whip_client_web.dart" as platform;
+    if (dart.library.js_interop) "whip_client_web.dart"
+    as platform;
 
 /// Base abstract class for WHIP (WebRTC-HTTP Ingestion Protocol) Client.
 ///
@@ -38,7 +39,8 @@ abstract class WHIPClient {
   static bool get isLibraryLoaded => platform.isWHIPLibraryLoaded;
 
   /// Dynamically load the WHIP client library script from jsDelivr CDN.
-  static Future<void> initialize({String? cdnUrl}) => platform.initializeWHIP(cdnUrl: cdnUrl);
+  static Future<void> initialize({String? cdnUrl}) =>
+      platform.initializeWHIP(cdnUrl: cdnUrl);
 
   // --- Methods ---
 

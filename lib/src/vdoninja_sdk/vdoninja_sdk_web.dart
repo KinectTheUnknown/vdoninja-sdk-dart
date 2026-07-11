@@ -632,6 +632,9 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     String type,
     T Function(web.CustomEvent event) mapEvent,
   ) {
+    if (_controllers.containsKey(type)) {
+      return _controllers[type]!.stream as Stream<T>;
+    }
     late final StreamController<T> controller;
     controller = StreamController<T>.broadcast(
       onListen: () {

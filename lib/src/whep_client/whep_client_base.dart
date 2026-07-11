@@ -1,6 +1,7 @@
 import "dart:async";
 import "whep_client_stub.dart"
-    if (dart.library.js_interop) "whep_client_web.dart" as platform;
+    if (dart.library.js_interop) "whep_client_web.dart"
+    as platform;
 
 /// Base abstract class for WHEP (WebRTC-HTTP Egress Protocol) Client.
 ///
@@ -34,7 +35,8 @@ abstract class WHEPClient {
   static bool get isLibraryLoaded => platform.isWHEPLibraryLoaded;
 
   /// Dynamically load the WHEP client library script from jsDelivr CDN.
-  static Future<void> initialize({String? cdnUrl}) => platform.initializeWHEP(cdnUrl: cdnUrl);
+  static Future<void> initialize({String? cdnUrl}) =>
+      platform.initializeWHEP(cdnUrl: cdnUrl);
 
   // --- Methods ---
 

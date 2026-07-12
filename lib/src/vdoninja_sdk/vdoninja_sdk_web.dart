@@ -82,7 +82,7 @@ extension type VDONinjaSDKJS._(JSObject _) implements JSObject {
 /// Web-specific implementation of the VDO.Ninja SDK using JS interop.
 class VDONinjaSDKWeb implements VDONinjaSDK {
   final VDONinjaSDKJS _jsSdk;
-  final Map<String, StreamController> _controllers = {};
+  final Map<String, StreamController<dynamic>> _controllers = {};
   final Map<String, JSFunction> _jsCallbacks = {};
 
   VDONinjaSDKWeb({

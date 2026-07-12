@@ -1,0 +1,20 @@
+#!/bin/sh
+
+# Stash unstaged changes before running the linter
+git stash -q --keep-index
+
+# Run flutter analyze
+echo "Running flutter analyze..."
+flutter analyze
+RESULT=$?
+
+# Restore unstaged changes
+git stash pop -q
+
+# Fail the commit if there are analysis issues
+if [ $RESULT -ne 0 ]; then
+  echo "flutter analyze failed. Please fix the issues before committing."
+  exit 1
+fi
+
+exit 0

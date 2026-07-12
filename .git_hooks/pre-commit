@@ -1,15 +1,31 @@
 #!/bin/sh
 
-# Stash unstaged changes before running the linter
-git stash -q --keep-index
+# Capture whether there are unstaged changes
+if git diff --quiet; then
+  has_unstaged=0
+else
+  has_unstaged=1
+fi
+
+# Stash unstaged changes before running the linter if any exist
+if [ $has_unstaged -eq 1 ]; then
+  # Create a stash entry, including untracked files
+  git stash push -q -u --keep-index -m "pre-commit stash"
+fi
 
 # Run flutter analyze
 echo "Running flutter analyze..."
 flutter analyze
 RESULT=$?
 
-# Restore unstaged changes
-git stash pop -q
+# Restore unstaged changes if we stashed them
+if [ $has_unstaged -eq 1 ]; then
+  git stash pop -q
+  POP_RESULT=$?
+  if [ $POP_RESULT -ne 0 ]; then
+    echo "Warning: Failed to automatically restore stashed changes. Please resolve conflicts manually using 'git stash pop'."
+  fi
+fi
 
 # Fail the commit if there are analysis issues
 if [ $RESULT -ne 0 ]; then

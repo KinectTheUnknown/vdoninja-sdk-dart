@@ -31,6 +31,7 @@ extension type WHEPClientJS._(JSObject _) implements JSObject {
 /// Web-specific implementation of the WHEPClient.
 class WHEPClientWeb implements WHEPClient {
   final WHEPClientJS _jsClient;
+  final Map<String, StreamController> _controllers = {};
   final Map<String, JSFunction> _jsCallbacks = {};
 
   WHEPClientWeb({
@@ -94,6 +95,10 @@ class WHEPClientWeb implements WHEPClient {
   }
 
   Stream<T> _getStream<T>(String type, T Function(web.Event event) mapEvent) {
+    if (_controllers.containsKey(type)) {
+      return _controllers[type]!.stream as Stream<T>;
+    }
+
     late final StreamController<T> controller;
     controller = StreamController<T>.broadcast(
       onListen: () {
@@ -115,6 +120,7 @@ class WHEPClientWeb implements WHEPClient {
         }
       },
     );
+    _controllers[type] = controller;
     return controller.stream;
   }
 

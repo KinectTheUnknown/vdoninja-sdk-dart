@@ -1,3 +1,7 @@
 ## 2024-07-09 - JS Array parsing memory allocation
 **Learning:** Calling `List<dynamic>.generate` relies on dynamic memory allocation mapping for each array element, which creates significant execution overhead on `JSArray` conversions in dart:js_interop logic. Pre-allocating a fixed `List<dynamic>.filled(length, null)` buffer and indexing manually runs faster and scales better. We shouldn't use `JSON.stringify()` serialization due to data loss of non-stringifiable elements like `NaN`, `Infinity` and JS Functions when iterating array indices in Flutter web boundaries.
 **Action:** Always prefer statically pre-allocated lists `List.filled(length)` over `List.generate()` when traversing large JavaScript arrays across Dart JS interop.
+
+## 2026-07-12 - JS Event Listener Memory Leak on Stream Getters
+**Learning:** Creating a new `StreamController.broadcast` every time a getter like `onTrack` is accessed registers duplicate JavaScript event listeners via `addEventListener`. Since getters are often evaluated multiple times (e.g. by Flutter's `StreamBuilder` across rebuilds), this creates severe memory leaks and CPU overhead due to redundant JS callbacks firing.
+**Action:** Always cache the `StreamController` internally (e.g., using a `Map<String, StreamController>` keyed by event type) when exposing JavaScript events as Dart streams to ensure only one listener is bound to the JS SDK.

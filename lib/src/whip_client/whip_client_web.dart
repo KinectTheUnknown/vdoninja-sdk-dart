@@ -30,6 +30,7 @@ extension type WHIPClientJS._(JSObject _) implements JSObject {
 /// Web-specific implementation of the WHIPClient.
 class WHIPClientWeb implements WHIPClient {
   final WHIPClientJS _jsClient;
+  final Map<String, StreamController> _controllers = {};
   final Map<String, JSFunction> _jsCallbacks = {};
 
   WHIPClientWeb({
@@ -115,6 +116,10 @@ class WHIPClientWeb implements WHIPClient {
   }
 
   Stream<T> _getStream<T>(String type, T Function(web.Event event) mapEvent) {
+    if (_controllers.containsKey(type)) {
+      return _controllers[type]!.stream as Stream<T>;
+    }
+
     late final StreamController<T> controller;
     controller = StreamController<T>.broadcast(
       onListen: () {
@@ -136,6 +141,7 @@ class WHIPClientWeb implements WHIPClient {
         }
       },
     );
+    _controllers[type] = controller;
     return controller.stream;
   }
 

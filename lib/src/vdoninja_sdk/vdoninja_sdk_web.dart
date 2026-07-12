@@ -213,7 +213,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
   }
 
   /// Dynamically inject the VDO.Ninja SDK JavaScript library into the page.
-  static Future<void> initialize({String? cdnUrl, String version = "1.4.1"}) async {
+  static Future<void> initialize({String? cdnUrl, String version = "latest"}) async {
     if (isSDKLoaded) return;
     final completer = Completer<void>();
     final script =
@@ -919,5 +919,5 @@ VDONinjaSDK createSDK({
 bool get isSDKLoaded => VDONinjaSDKWeb.isSDKLoaded;
 
 /// Web function for script initialization.
-Future<void> initialize({String? cdnUrl, String version = "1.4.1"}) =>
+Future<void> initialize({String? cdnUrl, String version = "latest"}) =>
     VDONinjaSDKWeb.initialize(cdnUrl: cdnUrl, version: version);

@@ -6,7 +6,7 @@
 **Vulnerability:** External JS SDK dependencies were dynamically loaded from jsdelivr using the `@latest` tag.
 **Learning:** Loading external scripts using a `@latest` tag exposes the application to supply chain attacks. If a malicious commit or an unexpected breaking change is published to the upstream repository, the app will automatically fetch and execute it without any user intervention.
 **Prevention:** Always allow consumers to pin external dependencies via CDNs to a specific version tag or commit hash (e.g., `@1.3.18` instead of `@latest`), though maintaining `@latest` as an optional default provides flexibility.
-## 2025-01-01 - Fix Unpinned CDN Dependencies
+## 2025-01-01 - [Rejected] Fix Unpinned CDN Dependencies
 **Vulnerability:** External JS SDK scripts were being dynamically loaded from CDNs using the `@latest` version tag.
-**Learning:** Loading external dependencies using `@latest` makes the application vulnerable to supply chain attacks. A compromised upstream package would automatically be injected and executed on all clients without any review.
-**Prevention:** Pin dependencies loaded via CDNs to a specific, known-good version tag (e.g., `1.4.1`) instead of relying on floating tags like `latest`.
+**Learning:** This change was rejected (duplicate of #6). The project maintainers explicitly prefer that users stay on the latest version by default.
+**Prevention:** Do not enforce hardcoded version pinning for CDN dependencies. Instead, rely on the existing architecture that allows users to pass a specific version string as an argument if they require strict supply chain security.

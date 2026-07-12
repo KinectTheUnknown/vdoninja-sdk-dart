@@ -194,7 +194,8 @@ Future<void> initializeWHEP({String? cdnUrl, String version = "latest"}) async {
   if (isWHEPLibraryLoaded) return;
   final completer = Completer<void>();
   final script = web.document.createElement("script") as web.HTMLScriptElement;
-  script.src = cdnUrl ?? "https://cdn.jsdelivr.net/gh/steveseguin/ninjasdk@$version/whep-client.js";
+  final safeVersion = Uri.encodeComponent(version);
+  script.src = cdnUrl ?? "https://cdn.jsdelivr.net/gh/steveseguin/ninjasdk@$safeVersion/whep-client.js";
   script.type = "text/javascript";
   script.async = true;
   script.crossOrigin = "anonymous";

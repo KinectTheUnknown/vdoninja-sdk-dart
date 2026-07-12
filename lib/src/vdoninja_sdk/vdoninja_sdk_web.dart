@@ -218,7 +218,8 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     final completer = Completer<void>();
     final script =
         web.document.createElement("script") as web.HTMLScriptElement;
-    script.src = cdnUrl ?? "https://unpkg.com/@vdoninja/sdk@$version/vdoninja-sdk.js";
+    final safeVersion = Uri.encodeComponent(version);
+    script.src = cdnUrl ?? "https://unpkg.com/@vdoninja/sdk@$safeVersion/vdoninja-sdk.js";
     script.type = "text/javascript";
     script.async = true;
     script.crossOrigin = "anonymous";

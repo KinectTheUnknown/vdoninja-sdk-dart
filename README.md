@@ -199,3 +199,11 @@ This package is a community-driven wrapper and is not officially affiliated with
 - **Official GitHub Repository**: [steveseguin/vdo.ninja](https://github.com/steveseguin/vdo.ninja)
 - **Official JS SDK on NPM**: [@vdoninja/sdk](https://www.npmjs.com/package/@vdoninja/sdk)
 
+
+## Contributing
+
+To contribute to this project, you need to set up the pre-commit git hooks:
+
+```bash
+git config core.hooksPath .git_hooks
+```

@@ -34,7 +34,7 @@ abstract class WHEPClient {
   static bool get isLibraryLoaded => platform.isWHEPLibraryLoaded;
 
   /// Dynamically load the WHEP client library script from jsDelivr CDN.
-  static Future<void> initialize({String? cdnUrl, String version = "latest"}) => platform.initializeWHEP(cdnUrl: cdnUrl, version: version);
+  static Future<void> initialize({String? cdnUrl, String version = "1.4.1"}) => platform.initializeWHEP(cdnUrl: cdnUrl, version: version);
 
   // --- Methods ---
 

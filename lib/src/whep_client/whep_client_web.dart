@@ -190,7 +190,7 @@ WHEPClient createWHEPClient({
 bool get isWHEPLibraryLoaded => web.window.hasProperty("WHEPClient".toJS).toDart;
 
 /// Dynamically loads the WHEP Client JavaScript.
-Future<void> initializeWHEP({String? cdnUrl, String version = "latest"}) async {
+Future<void> initializeWHEP({String? cdnUrl, String version = "1.4.1"}) async {
   if (isWHEPLibraryLoaded) return;
   final completer = Completer<void>();
   final script = web.document.createElement("script") as web.HTMLScriptElement;

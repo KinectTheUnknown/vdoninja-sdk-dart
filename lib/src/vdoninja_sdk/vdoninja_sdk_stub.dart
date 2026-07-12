@@ -314,4 +314,4 @@ VDONinjaSDK createSDK({
 bool get isSDKLoaded => false;
 
 /// Stub function for script initialization.
-Future<void> initialize({String? cdnUrl, String version = "latest"}) async {}
+Future<void> initialize({String? cdnUrl, String version = "1.4.1"}) async {}

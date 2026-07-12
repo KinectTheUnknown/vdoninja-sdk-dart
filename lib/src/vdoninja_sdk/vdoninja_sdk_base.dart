@@ -495,8 +495,8 @@ abstract class VDONinjaSDK {
   ///
   /// On Web, this appends a `<script>` tag referencing [cdnUrl] (default is unpkg).
   /// On other platforms, this is a no-op that resolves immediately.
-  static Future<void> initialize({String? cdnUrl}) =>
-      platform.initialize(cdnUrl: cdnUrl);
+  static Future<void> initialize({String? cdnUrl, String version = "latest"}) =>
+      platform.initialize(cdnUrl: cdnUrl, version: version);
 
   // --- SDK State Getters ---
 

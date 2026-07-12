@@ -38,7 +38,7 @@ abstract class WHIPClient {
   static bool get isLibraryLoaded => platform.isWHIPLibraryLoaded;
 
   /// Dynamically load the WHIP client library script from jsDelivr CDN.
-  static Future<void> initialize({String? cdnUrl}) => platform.initializeWHIP(cdnUrl: cdnUrl);
+  static Future<void> initialize({String? cdnUrl, String version = "latest"}) => platform.initializeWHIP(cdnUrl: cdnUrl, version: version);
 
   // --- Methods ---
 

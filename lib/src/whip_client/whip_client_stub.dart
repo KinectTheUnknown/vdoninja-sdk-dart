@@ -82,4 +82,4 @@ WHIPClient createWHIPClient({
 bool get isWHIPLibraryLoaded => false;
 
 /// Stub initialization.
-Future<void> initializeWHIP({String? cdnUrl}) async {}
+Future<void> initializeWHIP({String? cdnUrl, String version = "latest"}) async {}

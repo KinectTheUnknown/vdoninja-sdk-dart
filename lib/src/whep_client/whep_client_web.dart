@@ -190,11 +190,11 @@ WHEPClient createWHEPClient({
 bool get isWHEPLibraryLoaded => web.window.hasProperty("WHEPClient".toJS).toDart;
 
 /// Dynamically loads the WHEP Client JavaScript.
-Future<void> initializeWHEP({String? cdnUrl}) async {
+Future<void> initializeWHEP({String? cdnUrl, String version = "latest"}) async {
   if (isWHEPLibraryLoaded) return;
   final completer = Completer<void>();
   final script = web.document.createElement("script") as web.HTMLScriptElement;
-  script.src = cdnUrl ?? "https://cdn.jsdelivr.net/gh/steveseguin/ninjasdk@1.3.18/whep-client.js";
+  script.src = cdnUrl ?? "https://cdn.jsdelivr.net/gh/steveseguin/ninjasdk@$version/whep-client.js";
   script.type = "text/javascript";
   script.async = true;
   script.crossOrigin = "anonymous";

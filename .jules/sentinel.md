@@ -6,3 +6,8 @@
 **Vulnerability:** External JS SDK dependencies were dynamically loaded from jsdelivr using the `@latest` tag.
 **Learning:** Loading external scripts using a `@latest` tag exposes the application to supply chain attacks. If a malicious commit or an unexpected breaking change is published to the upstream repository, the app will automatically fetch and execute it without any user intervention.
 **Prevention:** Always allow consumers to pin external dependencies via CDNs to a specific version tag or commit hash (e.g., `@1.3.18` instead of `@latest`), though maintaining `@latest` as an optional default provides flexibility.
+
+## 2024-05-18 - Sensitive Data Exposure in toString Overrides
+**Vulnerability:** The `toString()` methods for `VDONinjaPasswordString`, `VDONinjaIceServerConfig`, and `VDONinjaIceServerObject` returned unredacted sensitive values like passwords and ICE server credentials.
+**Learning:** Overriding `toString` for objects containing sensitive data can lead to credentials accidentally leaking into logging systems, error monitoring solutions, or console outputs when objects are logged or stringified for debugging.
+**Prevention:** Ensure that `toString()` overrides on classes representing sensitive data explicitly redact, hash, or mask those values (e.g. `***`) rather than printing them in plain text.

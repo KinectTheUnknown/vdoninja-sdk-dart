@@ -10,3 +10,7 @@
 **Vulnerability:** External JS SDK scripts were being dynamically loaded from CDNs using the `@latest` version tag.
 **Learning:** This change was rejected (duplicate of #6). The project maintainers explicitly prefer that users stay on the latest version by default.
 **Prevention:** Do not enforce hardcoded version pinning for CDN dependencies. Instead, rely on the existing architecture that allows users to pass a specific version string as an argument if they require strict supply chain security.
+## 2024-11-23 - Prevent Sensitive Data Leakage in toString
+**Vulnerability:** Passwords and ICE server credentials in `VDONinjaPasswordString`, `VDONinjaIceServerConfig`, and `VDONinjaIceServerObject` were being fully output by their `toString()` methods.
+**Learning:** Overriding `toString()` on config objects containing secrets can easily lead to accidental leakage in logs and debug traces.
+**Prevention:** Always mask sensitive fields (`***`) before returning string representations of objects containing credentials.

@@ -1,16 +1,11 @@
 import "dart:async";
-import "dart:convert";
 import "dart:js_interop";
 import "dart:js_interop_unsafe";
 import "package:web/web.dart" as web;
 import "whep_client_base.dart";
 
-@JS("JSON.parse")
-external JSObject _jsJsonParse(JSString jsonStr);
-
 JSObject _mapToJSObject(Map<String, dynamic> map) {
-  final jsonStr = jsonEncode(map);
-  return _jsJsonParse(jsonStr.toJS);
+  return map.jsify() as JSObject;
 }
 
 @JS("WHEPClient")

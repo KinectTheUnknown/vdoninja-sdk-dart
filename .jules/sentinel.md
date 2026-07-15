@@ -10,3 +10,7 @@
 **Vulnerability:** External JS SDK scripts were being dynamically loaded from CDNs using the `@latest` version tag.
 **Learning:** This change was rejected (duplicate of #6). The project maintainers explicitly prefer that users stay on the latest version by default.
 **Prevention:** Do not enforce hardcoded version pinning for CDN dependencies. Instead, rely on the existing architecture that allows users to pass a specific version string as an argument if they require strict supply chain security.
+## 2025-02-15 - Information Disclosure in Data Class toString() Overrides
+**Vulnerability:** Plaintext passwords and ICE server credentials were leaked through `toString()` overrides in data classes (e.g., `VDONinjaPasswordString`, `VDONinjaIceServerConfig`, `VDONinjaIceServerObject`).
+**Learning:** Default or automatically generated `toString()` methods for classes containing sensitive information can unintentionally expose secrets in logs, debugging output, or error messages. This is a common pattern in Dart data classes where printing the object is frequent during development.
+**Prevention:** When overriding `toString()` for objects containing sensitive data (such as passwords, tokens, or credentials), explicitly redact or mask those values (e.g., using `***`) to prevent accidental leakage.

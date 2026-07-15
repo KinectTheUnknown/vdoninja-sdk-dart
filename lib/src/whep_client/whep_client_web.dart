@@ -16,7 +16,7 @@ JSObject _mapToJSObject(Map<String, dynamic> map) {
 @JS("WHEPClient")
 extension type WHEPClientJS._(JSObject _) implements JSObject {
   external WHEPClientJS(JSString endpoint, [JSObject? options]);
-  
+
   external JSPromise view();
   external JSObject? getStream();
   external void muteAudio(JSBoolean muted);
@@ -41,12 +41,12 @@ class WHEPClientWeb implements WHEPClient {
     bool? video,
     bool? trickleIce,
   }) : _jsClient = _createJsInstance(
-          endpoint: endpoint,
-          authToken: authToken,
-          audio: audio,
-          video: video,
-          trickleIce: trickleIce,
-        );
+         endpoint: endpoint,
+         authToken: authToken,
+         audio: audio,
+         video: video,
+         trickleIce: trickleIce,
+       );
 
   static WHEPClientJS _createJsInstance({
     required String endpoint,
@@ -56,7 +56,9 @@ class WHEPClientWeb implements WHEPClient {
     bool? trickleIce,
   }) {
     if (!isWHEPLibraryLoaded) {
-      throw StateError("WHEPClient library has not been loaded. Call WHEPClient.initialize() first.");
+      throw StateError(
+        "WHEPClient library has not been loaded. Call WHEPClient.initialize() first.",
+      );
     }
 
     final options = <String, dynamic>{};
@@ -132,25 +134,26 @@ class WHEPClientWeb implements WHEPClient {
 
   @override
   Stream<dynamic> get onTrack => _getStream("track", (event) {
-        if (event.hasProperty("detail".toJS).toDart) {
-          return event.getProperty("detail".toJS);
-        }
-        return event;
-      });
+    if (event.hasProperty("detail".toJS).toDart) {
+      return event.getProperty("detail".toJS);
+    }
+    return event;
+  });
 
   @override
   Stream<String> get onIceState => _getStream("icestate", (event) {
-        if (event.hasProperty("detail".toJS).toDart) {
-          final detail = event.getProperty("detail".toJS);
-          if (detail != null && detail.isA<JSString>()) {
-            return (detail as JSString).toDart;
-          }
-        }
-        return "unknown";
-      });
+    if (event.hasProperty("detail".toJS).toDart) {
+      final detail = event.getProperty("detail".toJS);
+      if (detail != null && detail.isA<JSString>()) {
+        return (detail as JSString).toDart;
+      }
+    }
+    return "unknown";
+  });
 
   @override
-  Stream<String> get onConnectionState => _getStream("connectionstate", (event) {
+  Stream<String> get onConnectionState =>
+      _getStream("connectionstate", (event) {
         if (event.hasProperty("detail".toJS).toDart) {
           final detail = event.getProperty("detail".toJS);
           if (detail != null && detail.isA<JSString>()) {
@@ -162,11 +165,11 @@ class WHEPClientWeb implements WHEPClient {
 
   @override
   Stream<dynamic> get onError => _getStream("error", (event) {
-        if (event.hasProperty("detail".toJS).toDart) {
-          return event.getProperty("detail".toJS);
-        }
-        return event;
-      });
+    if (event.hasProperty("detail".toJS).toDart) {
+      return event.getProperty("detail".toJS);
+    }
+    return event;
+  });
 
   @override
   Stream<void> get onDisconnected => _getStream("disconnected", (_) {});
@@ -193,7 +196,8 @@ WHEPClient createWHEPClient({
 }
 
 /// Library status check.
-bool get isWHEPLibraryLoaded => web.window.hasProperty("WHEPClient".toJS).toDart;
+bool get isWHEPLibraryLoaded =>
+    web.window.hasProperty("WHEPClient".toJS).toDart;
 
 /// Dynamically loads the WHEP Client JavaScript.
 Future<void> initializeWHEP({String? cdnUrl, String version = "latest"}) async {
@@ -201,7 +205,9 @@ Future<void> initializeWHEP({String? cdnUrl, String version = "latest"}) async {
   final completer = Completer<void>();
   final script = web.document.createElement("script") as web.HTMLScriptElement;
   final safeVersion = Uri.encodeComponent(version);
-  script.src = cdnUrl ?? "https://cdn.jsdelivr.net/gh/steveseguin/ninjasdk@$safeVersion/whep-client.js";
+  script.src =
+      cdnUrl ??
+      "https://cdn.jsdelivr.net/gh/steveseguin/ninjasdk@$safeVersion/whep-client.js";
   script.type = "text/javascript";
   script.async = true;
   script.crossOrigin = "anonymous";
@@ -211,7 +217,9 @@ Future<void> initializeWHEP({String? cdnUrl, String version = "latest"}) async {
   }.toJS;
 
   script.onerror = (web.Event event) {
-    completer.completeError(Exception("Failed to load WHEPClient script from ${script.src}"));
+    completer.completeError(
+      Exception("Failed to load WHEPClient script from ${script.src}"),
+    );
   }.toJS;
 
   web.document.head!.appendChild(script);

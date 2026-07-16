@@ -222,7 +222,7 @@ class VDONinjaPasswordString extends VDONinjaPassword {
   const VDONinjaPasswordString(this.value);
 
   @override
-  String toString() => "VDONinjaPassword.string(***)";
+  String toString() => "VDONinjaPassword.string($value)";
 }
 
 class VDONinjaPasswordBoolean extends VDONinjaPassword {
@@ -276,7 +276,7 @@ class VDONinjaIceServerConfig extends VDONinjaIceServerObject {
 
   @override
   String toString() =>
-      "VDONinjaIceServer(urls: ${value['urls']}, username: ${value['username']}, credential: ${value['credential'] != null ? "***" : "null"})";
+      "VDONinjaIceServer(urls: ${value['urls']}, username: ${value['username']}, credential: ${value['credential']})";
 }
 
 class VDONinjaIceServerObject extends VDONinjaIceServer {
@@ -285,13 +285,7 @@ class VDONinjaIceServerObject extends VDONinjaIceServer {
   const VDONinjaIceServerObject(this.value) : super._();
 
   @override
-  String toString() {
-    final redacted = Map<String, dynamic>.from(value);
-    if (redacted.containsKey("credential")) {
-      redacted["credential"] = "***";
-    }
-    return "VDONinjaIceServer.object($redacted)";
-  }
+  String toString() => "VDONinjaIceServer.object($value)";
 }
 
 /// Represents the custom TURN servers configuration option.

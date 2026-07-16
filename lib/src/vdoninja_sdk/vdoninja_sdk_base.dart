@@ -268,11 +268,7 @@ class VDONinjaIceServerConfig extends VDONinjaIceServerObject {
     required List<String> urls,
     String? username,
     String? credential,
-  }) : super({
-          "urls": urls,
-          "username": ?username,
-          "credential": ?credential,
-        });
+  }) : super({"urls": urls, "username": ?username, "credential": ?credential});
 
   @override
   String toString() =>

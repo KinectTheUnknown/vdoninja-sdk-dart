@@ -205,13 +205,18 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
   }
 
   /// Dynamically inject the VDO.Ninja SDK JavaScript library into the page.
-  static Future<void> initialize({String? cdnUrl, String version = "latest"}) async {
+  static Future<void> initialize({
+    String? cdnUrl,
+    String version = "latest",
+  }) async {
     if (isSDKLoaded) return;
     final completer = Completer<void>();
     final script =
         web.document.createElement("script") as web.HTMLScriptElement;
     final safeVersion = Uri.encodeComponent(version);
-    script.src = cdnUrl ?? "https://unpkg.com/@vdoninja/sdk@$safeVersion/vdoninja-sdk.js";
+    script.src =
+        cdnUrl ??
+        "https://unpkg.com/@vdoninja/sdk@$safeVersion/vdoninja-sdk.js";
     script.type = "text/javascript";
     script.async = true;
     script.crossOrigin = "anonymous";
@@ -604,12 +609,16 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
 
   @override
   List<Map<String, dynamic>> getStreams() {
-    return _jsSdk
-        .getStreams()
-        .toDart
-        .where((item) => item != null && item.isA<JSObject>())
-        .map((item) => _jsObjectToMap(item as JSObject))
-        .toList();
+    final rawDartList = _jsSdk.getStreams().toDart;
+    final length = rawDartList.length;
+    final streamsList = List<Map<String, dynamic>>.empty(growable: true);
+    for (var i = 0; i < length; i++) {
+      final item = rawDartList[i];
+      if (item != null && item.isA<JSObject>()) {
+        streamsList.add(_jsObjectToMap(item as JSObject));
+      }
+    }
+    return streamsList;
   }
 
   @override
@@ -727,9 +736,17 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
       final streamsAny = detailObj.getProperty("streams".toJS);
       final uuid = detailObj.getProperty("uuid".toJS) as JSString?;
       final streamID = detailObj.getProperty("streamID".toJS) as JSString?;
-      final streamsList = streamsAny != null && streamsAny.isA<JSArray>()
-          ? List<dynamic>.from((streamsAny as JSArray).toDart)
-          : <dynamic>[];
+      late final List<dynamic> streamsList;
+      if (streamsAny != null && streamsAny.isA<JSArray>()) {
+        final dartList = (streamsAny as JSArray).toDart;
+        final length = dartList.length;
+        streamsList = List<dynamic>.filled(length, null, growable: true);
+        for (var i = 0; i < length; i++) {
+          streamsList[i] = dartList[i];
+        }
+      } else {
+        streamsList = <dynamic>[];
+      }
 
       return VDONinjaTrackEvent(
         track: track,

@@ -5,3 +5,7 @@
 ## 2026-07-12 - JS Event Listener Memory Leak on Stream Getters
 **Learning:** Creating a new `StreamController.broadcast` every time a getter like `onTrack` is accessed registers duplicate JavaScript event listeners via `addEventListener`. Since getters are often evaluated multiple times (e.g. by Flutter's `StreamBuilder` across rebuilds), this creates severe memory leaks and CPU overhead due to redundant JS callbacks firing.
 **Action:** Always cache the `StreamController` internally (e.g., using a `Map<String, StreamController>` keyed by event type) when exposing JavaScript events as Dart streams to ensure only one listener is bound to the JS SDK.
+
+## 2024-05-24 - JS Interop Serialization Overhead
+**Learning:** Using `JSON.parse(jsonEncode(obj))` and `jsonDecode(JSON.stringify(obj))` for bridging Dart Maps/Lists and JavaScript Objects across boundaries creates immense string allocation and serialization overhead. Dart's native `.jsify()` and `.dartify()` avoid intermediate strings and lossy JSON conversions while keeping interop fast.
+**Action:** Always use `.jsify()` to cast Dart maps/iterables to JS objects and `.dartify()` with a `try/catch` block for safe backward mapping instead of bridging via JSON.

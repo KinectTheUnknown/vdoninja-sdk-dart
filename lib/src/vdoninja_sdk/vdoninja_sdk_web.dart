@@ -1,34 +1,30 @@
 import "dart:async";
-import "dart:convert";
 import "dart:js_interop";
 import "dart:js_interop_unsafe";
 import "package:web/web.dart" as web;
 import "vdoninja_sdk_base.dart";
 
-@JS("JSON.parse")
-external JSObject _jsJsonParse(JSString jsonStr);
-
-@JS("JSON.stringify")
-external JSString _jsJsonStringify(JSObject obj);
-
 /// Helper to convert a Dart Map or List to a JSObject or JSArray.
 JSObject _mapToJSObject(Map<String, dynamic> map) {
-  final jsonStr = jsonEncode(map);
-  return _jsJsonParse(jsonStr.toJS);
+  return map.jsify() as JSObject;
 }
 
 /// Helper to convert a JSObject to a Dart Map.
 Map<String, dynamic> _jsObjectToMap(JSObject obj) {
-  final jsonStr = _jsJsonStringify(obj).toDart;
-  return jsonDecode(jsonStr) as Map<String, dynamic>;
+  try {
+    final dartObj = obj.dartify();
+    if (dartObj is Map) {
+      return Map<String, dynamic>.from(dartObj);
+    }
+  } catch (_) {
+    // Ignore error and fall through
+  }
+  return <String, dynamic>{};
 }
 
 /// Helper to convert a JS object/primitive to a Dart value.
 dynamic _jsAnyToDart(JSAny? value) {
   if (value == null || value.isUndefinedOrNull) return null;
-  if (value.isA<JSBoolean>()) return (value as JSBoolean).toDart;
-  if (value.isA<JSNumber>()) return (value as JSNumber).toDartDouble;
-  if (value.isA<JSString>()) return (value as JSString).toDart;
   if (value.isA<JSArray>()) {
     final dartList = (value as JSArray).toDart;
     final length = dartList.length;
@@ -38,15 +34,11 @@ dynamic _jsAnyToDart(JSAny? value) {
     }
     return list;
   }
-  if (value.isA<JSObject>()) {
-    try {
-      final jsonStr = _jsJsonStringify(value as JSObject).toDart;
-      return jsonDecode(jsonStr);
-    } catch (_) {
-      return value; // Return as-is if it's a complex JS object (e.g. MediaStream)
-    }
+  try {
+    return value.dartify();
+  } catch (_) {
+    return value; // Return as-is if it's a complex JS object (e.g. MediaStream)
   }
-  return value;
 }
 
 @JS("VDONinjaSDK")
@@ -596,7 +588,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
 
     JSAny jsData;
     if (data is Map || data is List) {
-      jsData = _jsJsonParse(jsonEncode(data).toJS);
+      jsData = (data as dynamic).jsify() as JSAny;
     } else if (data is String) {
       jsData = data.toJS;
     } else if (data is bool) {

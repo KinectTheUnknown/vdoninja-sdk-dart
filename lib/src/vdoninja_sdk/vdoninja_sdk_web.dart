@@ -210,6 +210,12 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     String version = "latest",
   }) async {
     if (isSDKLoaded) return;
+    if (cdnUrl != null) {
+      final scheme = Uri.tryParse(cdnUrl)?.scheme.toLowerCase();
+      if (scheme != "https") {
+        throw ArgumentError("cdnUrl must be a valid HTTPS URL.");
+      }
+    }
     final completer = Completer<void>();
     final script =
         web.document.createElement("script") as web.HTMLScriptElement;

@@ -197,6 +197,12 @@ bool get isWHEPLibraryLoaded =>
 /// Dynamically loads the WHEP Client JavaScript.
 Future<void> initializeWHEP({String? cdnUrl, String version = "latest"}) async {
   if (isWHEPLibraryLoaded) return;
+  if (cdnUrl != null) {
+    final scheme = Uri.tryParse(cdnUrl)?.scheme.toLowerCase();
+    if (scheme != "https") {
+      throw ArgumentError("cdnUrl must be a valid HTTPS URL.");
+    }
+  }
   final completer = Completer<void>();
   final script = web.document.createElement("script") as web.HTMLScriptElement;
   final safeVersion = Uri.encodeComponent(version);

@@ -611,13 +611,17 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
   List<Map<String, dynamic>> getStreams() {
     final rawDartList = _jsSdk.getStreams().toDart;
     final length = rawDartList.length;
-    final streamsList = List<Map<String, dynamic>>.empty(growable: true);
+    // Performance optimization: Pre-allocate List buffer to avoid dynamic
+    // array resizing and reallocation overhead during JSArray conversion.
+    final streamsList = List<Map<String, dynamic>>.filled(length, const <String, dynamic>{}, growable: true);
+    var validCount = 0;
     for (var i = 0; i < length; i++) {
       final item = rawDartList[i];
       if (item != null && item.isA<JSObject>()) {
-        streamsList.add(_jsObjectToMap(item as JSObject));
+        streamsList[validCount++] = _jsObjectToMap(item as JSObject);
       }
     }
+    streamsList.length = validCount;
     return streamsList;
   }
 

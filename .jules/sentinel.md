@@ -15,3 +15,7 @@
 **Vulnerability:** External JS SDK scripts were being dynamically loaded from CDNs using the `@latest` version tag.
 **Learning:** This change was rejected (duplicate of #6). The project maintainers explicitly prefer that users stay on the latest version by default.
 **Prevention:** Do not enforce hardcoded version pinning for CDN dependencies. Instead, rely on the existing architecture that allows users to pass a specific version string as an argument if they require strict supply chain security.
+## 2026-07-19 - [Malicious URI Injection via cdnUrl]
+**Vulnerability:** The dynamically loaded script URL (`cdnUrl`) lacked validation to ensure it was an HTTPS URL, allowing for potential malicious URI injection attacks (like `javascript:` or `data:`).
+**Learning:** When using user-supplied URLs for dynamic script loading, it's critical to restrict the URI scheme to `https` to prevent script execution vulnerabilities. Also, when checking `?.scheme` on a nullable `Uri` in Dart, avoid calling `.toLowerCase()` unconditionally to prevent compile-time null safety errors.
+**Prevention:** Validate `Uri.tryParse(cdnUrl)?.scheme == 'https'` before injecting a script via `document.createElement("script")`.

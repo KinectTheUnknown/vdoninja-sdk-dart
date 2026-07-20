@@ -204,13 +204,18 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     return web.window.hasProperty("VDONinjaSDK".toJS).toDart;
   }
 
+  // Cache the initialization future to prevent redundant script injections
+  // if multiple components call initialize() concurrently.
+  static Future<void>? _initFuture;
+
   /// Dynamically inject the VDO.Ninja SDK JavaScript library into the page.
-  static Future<void> initialize({
-    String? cdnUrl,
-    String version = "latest",
-  }) async {
-    if (isSDKLoaded) return;
+  static Future<void> initialize({String? cdnUrl, String version = "latest"}) {
+    if (isSDKLoaded) return Future.value();
+    if (_initFuture != null) return _initFuture!;
+
     final completer = Completer<void>();
+    _initFuture = completer.future;
+
     final script =
         web.document.createElement("script") as web.HTMLScriptElement;
     final safeVersion = Uri.encodeComponent(version);
@@ -229,10 +234,11 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
       completer.completeError(
         Exception("Failed to load VDO.Ninja SDK script from ${script.src}"),
       );
+      _initFuture = null;
     }.toJS;
 
     web.document.head!.appendChild(script);
-    return completer.future;
+    return _initFuture!;
   }
 
   JSObject? get _state {

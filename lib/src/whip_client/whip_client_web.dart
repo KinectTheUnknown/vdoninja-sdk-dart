@@ -211,10 +211,18 @@ WHIPClient createWHIPClient({
 bool get isWHIPLibraryLoaded =>
     web.window.hasProperty("WHIPClient".toJS).toDart;
 
+// Cache the initialization future to prevent redundant script injections
+// if multiple components call initialize() concurrently.
+Future<void>? _initFuture;
+
 /// Dynamically loads the WHIP Client JavaScript.
-Future<void> initializeWHIP({String? cdnUrl, String version = "latest"}) async {
-  if (isWHIPLibraryLoaded) return;
+Future<void> initializeWHIP({String? cdnUrl, String version = "latest"}) {
+  if (isWHIPLibraryLoaded) return Future.value();
+  if (_initFuture != null) return _initFuture!;
+
   final completer = Completer<void>();
+  _initFuture = completer.future;
+
   final script = web.document.createElement("script") as web.HTMLScriptElement;
   final safeVersion = Uri.encodeComponent(version);
   script.src =
@@ -232,8 +240,9 @@ Future<void> initializeWHIP({String? cdnUrl, String version = "latest"}) async {
     completer.completeError(
       Exception("Failed to load WHIPClient script from ${script.src}"),
     );
+    _initFuture = null;
   }.toJS;
 
   web.document.head!.appendChild(script);
-  return completer.future;
+  return _initFuture!;
 }

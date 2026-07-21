@@ -15,3 +15,8 @@
 **Vulnerability:** External JS SDK scripts were being dynamically loaded from CDNs using the `@latest` version tag.
 **Learning:** This change was rejected (duplicate of #6). The project maintainers explicitly prefer that users stay on the latest version by default.
 **Prevention:** Do not enforce hardcoded version pinning for CDN dependencies. Instead, rely on the existing architecture that allows users to pass a specific version string as an argument if they require strict supply chain security.
+
+## 2026-07-21 - Restrict external scripts to HTTPS only
+**Vulnerability:** External JS scripts dynamically loaded via `cdnUrl` could use insecure schemes (e.g., `javascript:` or `data:`), leading to XSS vulnerabilities.
+**Learning:** Only strict schemes like `https` should be allowed when resolving URLs. To avoid breaking relative or protocol-relative paths, the URL validation should allow URLs without explicit schemes, and only block schemes that are not 'https'.
+**Prevention:** Add a validation step before injecting scripts: `if (parsed != null && parsed.hasScheme && parsed.scheme != "https") { throw ArgumentError(...); }`.

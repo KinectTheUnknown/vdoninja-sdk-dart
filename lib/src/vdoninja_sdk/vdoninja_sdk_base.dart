@@ -283,8 +283,8 @@ class VDONinjaIceServerObject extends VDONinjaIceServer {
   @override
   String toString() {
     final Map<String, dynamic> safeMap = Map<String, dynamic>.from(value);
-    if (safeMap.containsKey('credential') && safeMap['credential'] != null) {
-      safeMap['credential'] = '***';
+    if (safeMap.containsKey("credential") && safeMap["credential"] != null) {
+      safeMap["credential"] = "***";
     }
     return "VDONinjaIceServer.object($safeMap)";
   }

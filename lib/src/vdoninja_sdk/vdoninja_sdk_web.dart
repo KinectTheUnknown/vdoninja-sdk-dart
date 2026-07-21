@@ -204,13 +204,19 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     return web.window.hasProperty("VDONinjaSDK".toJS).toDart;
   }
 
+  static Future<void>? _initFuture;
+
   /// Dynamically inject the VDO.Ninja SDK JavaScript library into the page.
   static Future<void> initialize({
     String? cdnUrl,
     String version = "latest",
-  }) async {
-    if (isSDKLoaded) return;
+  }) {
+    if (isSDKLoaded) return Future.value();
+    if (_initFuture != null) return _initFuture!;
+
     final completer = Completer<void>();
+    _initFuture = completer.future;
+
     final script =
         web.document.createElement("script") as web.HTMLScriptElement;
     final safeVersion = Uri.encodeComponent(version);
@@ -226,6 +232,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     }.toJS;
 
     script.onerror = (web.Event event) {
+      _initFuture = null;
       completer.completeError(
         Exception("Failed to load VDO.Ninja SDK script from ${script.src}"),
       );

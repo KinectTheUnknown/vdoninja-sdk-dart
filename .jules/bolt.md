@@ -9,3 +9,7 @@
 ## 2024-05-24 - JS Interop Serialization Overhead
 **Learning:** Using `JSON.parse(jsonEncode(obj))` and `jsonDecode(JSON.stringify(obj))` for bridging Dart Maps/Lists and JavaScript Objects across boundaries creates immense string allocation and serialization overhead. Dart's native `.jsify()` and `.dartify()` avoid intermediate strings and lossy JSON conversions while keeping interop fast.
 **Action:** Always use `.jsify()` to cast Dart maps/iterables to JS objects and `.dartify()` with a `try/catch` block for safe backward mapping instead of bridging via JSON.
+
+## 2024-07-21 - Redundant Script Injection on Concurrent initialize() Calls
+**Learning:** When dynamically loading third-party scripts (like VDONinja SDK, WHIP, or WHEP clients) using a `<script>` tag injection, calling `initialize()` multiple times concurrently before the script finishes loading creates a race condition. The `isSDKLoaded` check fails because the JS object doesn't exist yet, leading to duplicate script injections and network requests.
+**Action:** Always use a module/class-level `Future` variable to cache and track the initialization process. Return this cached Future immediately on subsequent calls so all consumers await a single shared DOM injection and network request.

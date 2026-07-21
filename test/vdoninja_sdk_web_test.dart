@@ -90,5 +90,38 @@ void main() {
       final client = WHEPClient(endpoint: "https://whep.endpoint");
       expect(client, isNotNull);
     });
+
+    test("initialize throws ArgumentError on non-HTTPS cdnUrl", () {
+      expect(
+        () => VDONinjaSDK.initialize(cdnUrl: "http://unpkg.com/unsafe"),
+        throwsA(isA<ArgumentError>()),
+      );
+      expect(
+        () => VDONinjaSDK.initialize(cdnUrl: "javascript:alert(1)"),
+        throwsA(isA<ArgumentError>()),
+      );
+    });
+
+    test("WHIPClient.initialize throws ArgumentError on non-HTTPS cdnUrl", () {
+      expect(
+        () => WHIPClient.initialize(cdnUrl: "http://unpkg.com/unsafe"),
+        throwsA(isA<ArgumentError>()),
+      );
+      expect(
+        () => WHIPClient.initialize(cdnUrl: "javascript:alert(1)"),
+        throwsA(isA<ArgumentError>()),
+      );
+    });
+
+    test("WHEPClient.initialize throws ArgumentError on non-HTTPS cdnUrl", () {
+      expect(
+        () => WHEPClient.initialize(cdnUrl: "http://unpkg.com/unsafe"),
+        throwsA(isA<ArgumentError>()),
+      );
+      expect(
+        () => WHEPClient.initialize(cdnUrl: "javascript:alert(1)"),
+        throwsA(isA<ArgumentError>()),
+      );
+    });
   });
 }

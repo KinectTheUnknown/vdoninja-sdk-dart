@@ -209,6 +209,15 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     String? cdnUrl,
     String version = "latest",
   }) async {
+    if (cdnUrl != null) {
+      final parsed = Uri.tryParse(cdnUrl);
+      // Only throw if there is an explicit scheme and it's not https
+      // This allows relative urls and protocol-relative urls to pass
+      if (parsed != null && parsed.hasScheme && parsed.scheme != "https") {
+        throw ArgumentError("If a scheme is provided in cdnUrl, it must be https");
+      }
+    }
+
     if (isSDKLoaded) return;
     final completer = Completer<void>();
     final script =

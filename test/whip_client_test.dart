@@ -13,10 +13,7 @@ void main() {
 
     test("publish throws UnsupportedError on native VM", () async {
       final client = WHIPClient(endpoint: "https://test.whip.endpoint");
-      expect(
-        () => client.publish(Object()),
-        throwsA(isA<UnsupportedError>()),
-      );
+      expect(() => client.publish(Object()), throwsA(isA<UnsupportedError>()));
     });
   });
 }

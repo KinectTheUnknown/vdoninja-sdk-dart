@@ -13,10 +13,7 @@ void main() {
 
     test("view throws UnsupportedError on native VM", () async {
       final client = WHEPClient(endpoint: "https://test.whep.endpoint");
-      expect(
-        () => client.view(),
-        throwsA(isA<UnsupportedError>()),
-      );
+      expect(() => client.view(), throwsA(isA<UnsupportedError>()));
     });
   });
 }

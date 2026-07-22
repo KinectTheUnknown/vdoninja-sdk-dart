@@ -77,18 +77,24 @@ void main() {
       expect(sdk.room, isNull);
     });
 
-    test("WHIPClient isLibraryLoaded is true and instantiates successfully", () {
-      expect(WHIPClient.isLibraryLoaded, isTrue);
+    test(
+      "WHIPClient isLibraryLoaded is true and instantiates successfully",
+      () {
+        expect(WHIPClient.isLibraryLoaded, isTrue);
 
-      final client = WHIPClient(endpoint: "https://whip.endpoint");
-      expect(client, isNotNull);
-    });
+        final client = WHIPClient(endpoint: "https://whip.endpoint");
+        expect(client, isNotNull);
+      },
+    );
 
-    test("WHEPClient isLibraryLoaded is true and instantiates successfully", () {
-      expect(WHEPClient.isLibraryLoaded, isTrue);
+    test(
+      "WHEPClient isLibraryLoaded is true and instantiates successfully",
+      () {
+        expect(WHEPClient.isLibraryLoaded, isTrue);
 
-      final client = WHEPClient(endpoint: "https://whep.endpoint");
-      expect(client, isNotNull);
-    });
+        final client = WHEPClient(endpoint: "https://whep.endpoint");
+        expect(client, isNotNull);
+      },
+    );
   });
 }

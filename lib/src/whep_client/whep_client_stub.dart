@@ -87,4 +87,7 @@ WHEPClient createWHEPClient({
 bool get isWHEPLibraryLoaded => false;
 
 /// Stub initialization.
-Future<void> initializeWHEP({String? cdnUrl, String version = "latest"}) async {}
+Future<void> initializeWHEP({
+  String? cdnUrl,
+  String version = "latest",
+}) async {}

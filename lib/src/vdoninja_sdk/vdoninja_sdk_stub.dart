@@ -48,27 +48,44 @@ class VDONinjaSDKStub implements VDONinjaSDK {
   bool get isPublishing => false;
 
   @override
-  Future<void> connect({String? host, String? room, VDONinjaPassword? password}) {
-    throw UnsupportedError("VDO.Ninja SDK is only supported on the Web platform.");
+  Future<void> connect({
+    String? host,
+    String? room,
+    VDONinjaPassword? password,
+  }) {
+    throw UnsupportedError(
+      "VDO.Ninja SDK is only supported on the Web platform.",
+    );
   }
 
   @override
   void disconnect() {
-    throw UnsupportedError("VDO.Ninja SDK is only supported on the Web platform.");
+    throw UnsupportedError(
+      "VDO.Ninja SDK is only supported on the Web platform.",
+    );
   }
 
   @override
-  Future<void> joinRoom({String? room, VDONinjaPassword? password, bool? claim}) {
-    throw UnsupportedError("VDO.Ninja SDK is only supported on the Web platform.");
+  Future<void> joinRoom({
+    String? room,
+    VDONinjaPassword? password,
+    bool? claim,
+  }) {
+    throw UnsupportedError(
+      "VDO.Ninja SDK is only supported on the Web platform.",
+    );
   }
 
   @override
   void leaveRoom() {
-    throw UnsupportedError("VDO.Ninja SDK is only supported on the Web platform.");
+    throw UnsupportedError(
+      "VDO.Ninja SDK is only supported on the Web platform.",
+    );
   }
 
   @override
-  Future<dynamic> publish(dynamic stream, {
+  Future<dynamic> publish(
+    dynamic stream, {
     String? streamID,
     String? label,
     String? room,
@@ -86,7 +103,9 @@ class VDONinjaSDKStub implements VDONinjaSDK {
     Map<String, dynamic>? media,
     Map<String, dynamic>? webrtc,
   }) {
-    throw UnsupportedError("VDO.Ninja SDK is only supported on the Web platform.");
+    throw UnsupportedError(
+      "VDO.Ninja SDK is only supported on the Web platform.",
+    );
   }
 
   @override
@@ -106,16 +125,21 @@ class VDONinjaSDKStub implements VDONinjaSDK {
     VDONinjaAllowChunked? allowChunked,
     Map<String, dynamic>? info,
   }) {
-    throw UnsupportedError("VDO.Ninja SDK is only supported on the Web platform.");
+    throw UnsupportedError(
+      "VDO.Ninja SDK is only supported on the Web platform.",
+    );
   }
 
   @override
   void stopPublishing() {
-    throw UnsupportedError("VDO.Ninja SDK is only supported on the Web platform.");
+    throw UnsupportedError(
+      "VDO.Ninja SDK is only supported on the Web platform.",
+    );
   }
 
   @override
-  Future<String> quickPublish(dynamic stream, {
+  Future<String> quickPublish(
+    dynamic stream, {
     String? streamID,
     String? label,
     String? room,
@@ -133,21 +157,28 @@ class VDONinjaSDKStub implements VDONinjaSDK {
     Map<String, dynamic>? media,
     Map<String, dynamic>? webrtc,
   }) {
-    throw UnsupportedError("VDO.Ninja SDK is only supported on the Web platform.");
+    throw UnsupportedError(
+      "VDO.Ninja SDK is only supported on the Web platform.",
+    );
   }
 
   @override
   void stopViewing(String streamID) {
-    throw UnsupportedError("VDO.Ninja SDK is only supported on the Web platform.");
+    throw UnsupportedError(
+      "VDO.Ninja SDK is only supported on the Web platform.",
+    );
   }
 
   @override
-  Future<dynamic> view(String streamID, {
+  Future<dynamic> view(
+    String streamID, {
     VDONinjaPassword? password,
     Map<String, dynamic>? preferences,
     Map<String, dynamic>? viewPreferences,
   }) {
-    throw UnsupportedError("VDO.Ninja SDK is only supported on the Web platform.");
+    throw UnsupportedError(
+      "VDO.Ninja SDK is only supported on the Web platform.",
+    );
   }
 
   @override
@@ -160,7 +191,9 @@ class VDONinjaSDKStub implements VDONinjaSDK {
     String? label,
     bool? dataOnly,
   }) {
-    throw UnsupportedError("VDO.Ninja SDK is only supported on the Web platform.");
+    throw UnsupportedError(
+      "VDO.Ninja SDK is only supported on the Web platform.",
+    );
   }
 
   @override
@@ -173,7 +206,9 @@ class VDONinjaSDKStub implements VDONinjaSDK {
     String? label,
     bool? dataOnly,
   }) {
-    throw UnsupportedError("VDO.Ninja SDK is only supported on the Web platform.");
+    throw UnsupportedError(
+      "VDO.Ninja SDK is only supported on the Web platform.",
+    );
   }
 
   @override
@@ -186,18 +221,23 @@ class VDONinjaSDKStub implements VDONinjaSDK {
     bool Function(Map<String, dynamic> item)? filter,
     Map<String, dynamic>? view,
   }) {
-    throw UnsupportedError("VDO.Ninja SDK is only supported on the Web platform.");
+    throw UnsupportedError(
+      "VDO.Ninja SDK is only supported on the Web platform.",
+    );
   }
 
   @override
-  void sendData(dynamic data, {
+  void sendData(
+    dynamic data, {
     String? uuid,
     String? type,
     String? streamID,
     bool? allowFallback,
     String? preference,
   }) {
-    throw UnsupportedError("VDO.Ninja SDK is only supported on the Web platform.");
+    throw UnsupportedError(
+      "VDO.Ninja SDK is only supported on the Web platform.",
+    );
   }
 
   @override
@@ -251,7 +291,8 @@ class VDONinjaSDKStub implements VDONinjaSDK {
   Stream<VDONinjaPeerInfoEvent> get onPeerInfo => const Stream.empty();
 
   @override
-  Stream<VDONinjaRemoteVideoMuteStateEvent> get onRemoteVideoMuteState => const Stream.empty();
+  Stream<VDONinjaRemoteVideoMuteStateEvent> get onRemoteVideoMuteState =>
+      const Stream.empty();
 
   @override
   Stream<VDONinjaErrorEvent> get onError => const Stream.empty();

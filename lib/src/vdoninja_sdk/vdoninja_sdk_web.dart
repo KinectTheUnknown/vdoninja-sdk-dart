@@ -204,13 +204,21 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     return web.window.hasProperty("VDONinjaSDK".toJS).toDart;
   }
 
+  // Cache the initialization future to prevent redundant <script> injections
+  // and race conditions if initialize() is called concurrently.
+  static Future<void>? _initFuture;
+
   /// Dynamically inject the VDO.Ninja SDK JavaScript library into the page.
   static Future<void> initialize({
     String? cdnUrl,
     String version = "latest",
   }) async {
     if (isSDKLoaded) return;
+    if (_initFuture != null) return _initFuture;
+
     final completer = Completer<void>();
+    _initFuture = completer.future;
+
     final script =
         web.document.createElement("script") as web.HTMLScriptElement;
     final safeVersion = Uri.encodeComponent(version);
@@ -222,10 +230,12 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     script.crossOrigin = "anonymous";
 
     script.onload = (web.Event event) {
+      _initFuture = null;
       completer.complete();
     }.toJS;
 
     script.onerror = (web.Event event) {
+      _initFuture = null;
       completer.completeError(
         Exception("Failed to load VDO.Ninja SDK script from ${script.src}"),
       );
@@ -613,7 +623,11 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     final length = rawDartList.length;
     // Performance optimization: Pre-allocate List buffer to avoid dynamic
     // array resizing and reallocation overhead during JSArray conversion.
-    final streamsList = List<Map<String, dynamic>>.filled(length, const <String, dynamic>{}, growable: true);
+    final streamsList = List<Map<String, dynamic>>.filled(
+      length,
+      const <String, dynamic>{},
+      growable: true,
+    );
     var validCount = 0;
     for (var i = 0; i < length; i++) {
       final item = rawDartList[i];

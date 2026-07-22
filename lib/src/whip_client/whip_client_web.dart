@@ -214,6 +214,16 @@ bool get isWHIPLibraryLoaded =>
 /// Dynamically loads the WHIP Client JavaScript.
 Future<void> initializeWHIP({String? cdnUrl, String version = "latest"}) async {
   if (isWHIPLibraryLoaded) return;
+
+  if (cdnUrl != null) {
+    final parsed = Uri.tryParse(cdnUrl);
+    if (parsed == null || (parsed.hasScheme && parsed.scheme != "https")) {
+      throw ArgumentError(
+        "Invalid or insecure cdnUrl provided. Only \"https\" or scheme-relative URLs are allowed.",
+      );
+    }
+  }
+
   final completer = Completer<void>();
   final script = web.document.createElement("script") as web.HTMLScriptElement;
   final safeVersion = Uri.encodeComponent(version);

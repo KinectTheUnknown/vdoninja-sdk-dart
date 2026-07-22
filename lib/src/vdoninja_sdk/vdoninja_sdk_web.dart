@@ -210,6 +210,16 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     String version = "latest",
   }) async {
     if (isSDKLoaded) return;
+
+    if (cdnUrl != null) {
+      final parsed = Uri.tryParse(cdnUrl);
+      if (parsed == null || (parsed.hasScheme && parsed.scheme != "https")) {
+        throw ArgumentError(
+          "Invalid or insecure cdnUrl provided. Only \"https\" or scheme-relative URLs are allowed.",
+        );
+      }
+    }
+
     final completer = Completer<void>();
     final script =
         web.document.createElement("script") as web.HTMLScriptElement;
@@ -613,7 +623,11 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     final length = rawDartList.length;
     // Performance optimization: Pre-allocate List buffer to avoid dynamic
     // array resizing and reallocation overhead during JSArray conversion.
-    final streamsList = List<Map<String, dynamic>>.filled(length, const <String, dynamic>{}, growable: true);
+    final streamsList = List<Map<String, dynamic>>.filled(
+      length,
+      const <String, dynamic>{},
+      growable: true,
+    );
     var validCount = 0;
     for (var i = 0; i < length; i++) {
       final item = rawDartList[i];

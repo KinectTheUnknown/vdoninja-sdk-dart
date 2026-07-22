@@ -15,3 +15,8 @@
 **Vulnerability:** External JS SDK scripts were being dynamically loaded from CDNs using the `@latest` version tag.
 **Learning:** This change was rejected (duplicate of #6). The project maintainers explicitly prefer that users stay on the latest version by default.
 **Prevention:** Do not enforce hardcoded version pinning for CDN dependencies. Instead, rely on the existing architecture that allows users to pass a specific version string as an argument if they require strict supply chain security.
+
+## 2026-07-22 - Malicious URI Injection in Script Src
+**Vulnerability:** The optional `cdnUrl` parameters in the dynamically injected web clients (`WHEPClientWeb`, `WHIPClientWeb`, `VDONinjaSDKWeb`) allowed arbitrary URIs (like `javascript:` or `data:`), creating an injection vulnerability where malicious scripts could be executed in the context of the user's browser.
+**Learning:** Whenever an API allows users to provide an external URL to be used directly in the `src` attribute of a dynamically created script tag, it must be validated. If unvalidated, an attacker could supply a payload like `javascript:alert(1)` instead of a legitimate CDN link.
+**Prevention:** Always validate that the provided URL uses a secure scheme. If a scheme is explicitly provided, verify it is strictly `https` (while still allowing scheme-relative URLs like `//cdn.example.com/script.js` if they lack an explicit scheme).

@@ -15,3 +15,8 @@
 **Vulnerability:** External JS SDK scripts were being dynamically loaded from CDNs using the `@latest` version tag.
 **Learning:** This change was rejected (duplicate of #6). The project maintainers explicitly prefer that users stay on the latest version by default.
 **Prevention:** Do not enforce hardcoded version pinning for CDN dependencies. Instead, rely on the existing architecture that allows users to pass a specific version string as an argument if they require strict supply chain security.
+
+## 2025-02-23 - [URI Injection in Dynamically Loaded Scripts]
+**Vulnerability:** The `cdnUrl` parameters used for dynamically loading VDO.Ninja SDK, WHEP, and WHIP clients were directly passed to `script.src` without validation, allowing potential URI injection (e.g., `javascript:alert(1)` or `data:text/javascript,...`).
+**Learning:** Any user-provided URL used for dynamic script loading needs to be strictly validated to prevent XSS and arbitrary code execution through non-HTTPS protocols.
+**Prevention:** Implement strict URI validation that ensures any provided `cdnUrl` parses correctly and either uses the `https` scheme or is a valid relative URL. Reject any scheme that is not explicitly `https`.

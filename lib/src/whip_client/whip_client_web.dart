@@ -217,6 +217,15 @@ Future<void>? _initWhipFuture;
 
 /// Dynamically loads the WHIP Client JavaScript.
 Future<void> initializeWHIP({String? cdnUrl, String version = "latest"}) async {
+  if (cdnUrl != null) {
+    final parsed = Uri.tryParse(cdnUrl);
+    if (parsed == null || (parsed.hasScheme && parsed.scheme != "https")) {
+      throw ArgumentError(
+        "Invalid cdnUrl: must use HTTPS or be a valid relative URL.",
+      );
+    }
+  }
+
   if (isWHIPLibraryLoaded) return;
   if (_initWhipFuture != null) return _initWhipFuture;
 

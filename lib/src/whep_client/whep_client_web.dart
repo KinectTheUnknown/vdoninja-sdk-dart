@@ -200,6 +200,9 @@ Future<void>? _initWhepFuture;
 
 /// Dynamically loads the WHEP Client JavaScript.
 Future<void> initializeWHEP({String? cdnUrl, String version = "latest"}) async {
+  if (cdnUrl != null && Uri.tryParse(cdnUrl)?.scheme != "https") {
+    throw ArgumentError("cdnUrl must be an HTTPS URL to prevent malicious injection.");
+  }
   if (isWHEPLibraryLoaded) return;
   if (_initWhepFuture != null) return _initWhepFuture;
 

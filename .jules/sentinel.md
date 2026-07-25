@@ -19,3 +19,8 @@
 **Vulnerability:** The dynamically loaded script URL (`cdnUrl`) lacked validation to ensure it was an HTTPS URL, allowing for potential malicious URI injection attacks (like `javascript:` or `data:`).
 **Learning:** When using user-supplied URLs for dynamic script loading, it's critical to restrict the URI scheme to `https` to prevent script execution vulnerabilities. Also, when checking `?.scheme` on a nullable `Uri` in Dart, avoid calling `.toLowerCase()` unconditionally to prevent compile-time null safety errors.
 **Prevention:** Validate `Uri.tryParse(cdnUrl)?.scheme == 'https'` before injecting a script via `document.createElement("script")`.
+
+## 2026-07-20 - [Fix Overly Strict URI Validation]
+**Vulnerability:** The previous security fix for `cdnUrl` validation (`Uri.tryParse(cdnUrl)?.scheme != "https"`) was too strict. Legitimate relative URLs (e.g., `//example.com/script.js` or `script.js`) have an empty scheme, so checking `scheme != "https"` incorrectly blocked them.
+**Learning:** When validating URIs, check `hasScheme` first. An empty scheme is often valid for relative URLs, while malicious schemes like `javascript:` or `data:` will explicitly trigger `hasScheme == true` but fail the `scheme == "https"` check.
+**Prevention:** Use `final parsed = Uri.tryParse(url); if (parsed == null || (parsed.hasScheme && parsed.scheme != "https"))` to safely allow relative URLs while blocking malicious schemes.

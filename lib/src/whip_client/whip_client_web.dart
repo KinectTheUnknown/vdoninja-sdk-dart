@@ -152,8 +152,8 @@ class WHIPClientWeb implements WHIPClient {
 
   @override
   Stream<String> get onIceState => _getStream("icestate", (event) {
-    if (event.hasProperty("detail".toJS).toDart) {
-      final detail = event.getProperty("detail".toJS);
+    if (event.isA<web.CustomEvent>()) {
+      final detail = (event as web.CustomEvent).detail;
       if (detail != null && detail.isA<JSString>()) {
         return (detail as JSString).toDart;
       }
@@ -164,8 +164,8 @@ class WHIPClientWeb implements WHIPClient {
   @override
   Stream<String> get onConnectionState =>
       _getStream("connectionstate", (event) {
-        if (event.hasProperty("detail".toJS).toDart) {
-          final detail = event.getProperty("detail".toJS);
+        if (event.isA<web.CustomEvent>()) {
+          final detail = (event as web.CustomEvent).detail;
           if (detail != null && detail.isA<JSString>()) {
             return (detail as JSString).toDart;
           }
@@ -175,8 +175,8 @@ class WHIPClientWeb implements WHIPClient {
 
   @override
   Stream<dynamic> get onError => _getStream("error", (event) {
-    if (event.hasProperty("detail".toJS).toDart) {
-      return event.getProperty("detail".toJS);
+    if (event.isA<web.CustomEvent>()) {
+      return (event as web.CustomEvent).detail;
     }
     return event;
   });
@@ -218,7 +218,9 @@ Future<void>? _initWhipFuture;
 /// Dynamically loads the WHIP Client JavaScript.
 Future<void> initializeWHIP({String? cdnUrl, String version = "latest"}) async {
   if (cdnUrl != null && Uri.tryParse(cdnUrl)?.scheme != "https") {
-    throw ArgumentError("cdnUrl must be an HTTPS URL to prevent malicious injection.");
+    throw ArgumentError(
+      "cdnUrl must be an HTTPS URL to prevent malicious injection.",
+    );
   }
   if (isWHIPLibraryLoaded) return;
   if (_initWhipFuture != null) return _initWhipFuture;

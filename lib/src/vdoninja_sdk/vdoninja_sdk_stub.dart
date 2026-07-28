@@ -7,6 +7,7 @@ class VDONinjaSDKStub implements VDONinjaSDK {
     String? host,
     String? room,
     VDONinjaPassword? password,
+    String? salt,
     bool? debug,
     VDONinjaTurnServers? turnServers,
     bool? forceTURN,
@@ -172,9 +173,9 @@ class VDONinjaSDKStub implements VDONinjaSDK {
   @override
   Future<dynamic> view(
     String streamID, {
-    VDONinjaPassword? password,
-    Map<String, dynamic>? preferences,
-    Map<String, dynamic>? viewPreferences,
+    bool audio = true,
+    bool video = true,
+    String? label,
   }) {
     throw UnsupportedError(
       "VDO.Ninja SDK is only supported on the Web platform.",
@@ -234,7 +235,43 @@ class VDONinjaSDKStub implements VDONinjaSDK {
     String? streamID,
     bool? allowFallback,
     String? preference,
+    String? excludeSender,
   }) {
+    throw UnsupportedError(
+      "VDO.Ninja SDK is only supported on the Web platform.",
+    );
+  }
+
+  @override
+  Future<dynamic> addTrack(dynamic track, [dynamic stream]) {
+    throw UnsupportedError(
+      "VDO.Ninja SDK is only supported on the Web platform.",
+    );
+  }
+
+  @override
+  Future<dynamic> removeTrack(dynamic track) {
+    throw UnsupportedError(
+      "VDO.Ninja SDK is only supported on the Web platform.",
+    );
+  }
+
+  @override
+  Future<dynamic> replaceTrack(dynamic oldTrack, dynamic newTrack) {
+    throw UnsupportedError(
+      "VDO.Ninja SDK is only supported on the Web platform.",
+    );
+  }
+
+  @override
+  void sendPing(String uuid) {
+    throw UnsupportedError(
+      "VDO.Ninja SDK is only supported on the Web platform.",
+    );
+  }
+
+  @override
+  Future<dynamic> getStats([String? uuid]) {
     throw UnsupportedError(
       "VDO.Ninja SDK is only supported on the Web platform.",
     );
@@ -296,6 +333,12 @@ class VDONinjaSDKStub implements VDONinjaSDK {
 
   @override
   Stream<VDONinjaErrorEvent> get onError => const Stream.empty();
+
+  @override
+  Stream<List<dynamic>> get onListing => const Stream.empty();
+
+  @override
+  Stream<Map<String, dynamic>> get onConnectionFailed => const Stream.empty();
 }
 
 /// Helper function to create an SDK instance on non-web platforms.
@@ -303,6 +346,7 @@ VDONinjaSDK createSDK({
   String? host,
   String? room,
   VDONinjaPassword? password,
+  String? salt,
   bool? debug,
   VDONinjaTurnServers? turnServers,
   bool? forceTURN,
@@ -328,6 +372,7 @@ VDONinjaSDK createSDK({
     host: host,
     room: room,
     password: password,
+    salt: salt,
     debug: debug,
     turnServers: turnServers,
     forceTURN: forceTURN,

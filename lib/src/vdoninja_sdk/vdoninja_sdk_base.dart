@@ -403,6 +403,9 @@ abstract class VDONinjaSDK {
     /// Pass `false` to explicitly disable encryption.
     VDONinjaPassword? password,
 
+    /// Salt to use for stream ID hashing (important for vdo.ninja compatibility).
+    String? salt,
+
     /// Set to `true` to enable verbose console logging.
     bool? debug,
 
@@ -467,6 +470,7 @@ abstract class VDONinjaSDK {
     host: host,
     room: room,
     password: password,
+    salt: salt,
     debug: debug,
     turnServers: turnServers,
     forceTURN: forceTURN,
@@ -623,12 +627,18 @@ abstract class VDONinjaSDK {
 
   /// View a specific stream ID.
   ///
+  /// Matches the official JS SDK signature: `view(streamID, { audio, video, label })`.
+  ///
+  /// - [audio] defaults to `true` (receive audio track).
+  /// - [video] defaults to `true` (receive video track).
+  /// - [label] optional human-readable label for this viewer.
+  ///
   /// Returns a Future that resolves with the RTCPeerConnection of the viewer (on web, `web.RTCPeerConnection`).
   Future<dynamic> view(
     String streamID, {
-    VDONinjaPassword? password,
-    Map<String, dynamic>? preferences,
-    Map<String, dynamic>? viewPreferences,
+    bool audio = true,
+    bool video = true,
+    String? label,
   });
 
   /// Quick view method - connects, joins a room, and views in one call.
@@ -686,7 +696,23 @@ abstract class VDONinjaSDK {
     String? streamID,
     bool? allowFallback,
     String? preference,
+    String? excludeSender,
   });
+
+  /// Add a track to publishers.
+  Future<dynamic> addTrack(dynamic track, [dynamic stream]);
+
+  /// Remove a track from publishers.
+  Future<dynamic> removeTrack(dynamic track);
+
+  /// Replace a track.
+  Future<dynamic> replaceTrack(dynamic oldTrack, dynamic newTrack);
+
+  /// Send a ping.
+  void sendPing(String uuid);
+
+  /// Get connection statistics.
+  Future<dynamic> getStats([String? uuid]);
 
   /// Get list of all currently tracked streams.
   List<Map<String, dynamic>> getStreams();
@@ -743,6 +769,12 @@ abstract class VDONinjaSDK {
 
   /// Stream fired when an error occurs in signaling or WebRTC.
   Stream<VDONinjaErrorEvent> get onError;
+
+  /// Stream fired when room listing/members update.
+  Stream<List<dynamic>> get onListing;
+
+  /// Stream fired when connection fails to a peer.
+  Stream<Map<String, dynamic>> get onConnectionFailed;
 }
 
 /// Controller returned by [VDONinjaSDK.autoConnect] to manage the connection.

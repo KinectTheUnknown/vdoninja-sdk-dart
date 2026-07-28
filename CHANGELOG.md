@@ -1,3 +1,12 @@
+## 0.0.3
+
+* Added web test runner index harness in `web/index.html` for Flutter Web integration tests.
+* Updated `.gitignore` rules.
+
+## 0.0.2
+
+* Package setup and project structure updates.
+
 ## 0.0.1
 
 * Initial release of `vdoninja_sdk`.

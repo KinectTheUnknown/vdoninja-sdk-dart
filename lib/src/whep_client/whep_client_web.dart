@@ -129,16 +129,19 @@ class WHEPClientWeb implements WHEPClient {
 
   @override
   Stream<dynamic> get onTrack => _getStream("track", (event) {
-    if (event.hasProperty("detail".toJS).toDart) {
-      return event.getProperty("detail".toJS);
+    // Performance optimization: Use direct getter access with type check
+    // to avoid string allocations and cross-boundary overhead in hot paths
+    if (event.isA<web.CustomEvent>()) {
+      return (event as web.CustomEvent).detail;
     }
     return event;
   });
 
   @override
   Stream<String> get onIceState => _getStream("icestate", (event) {
-    if (event.hasProperty("detail".toJS).toDart) {
-      final detail = event.getProperty("detail".toJS);
+    // Performance optimization: Avoid dynamic property lookups inside hot callbacks
+    if (event.isA<web.CustomEvent>()) {
+      final detail = (event as web.CustomEvent).detail;
       if (detail != null && detail.isA<JSString>()) {
         return (detail as JSString).toDart;
       }
@@ -147,21 +150,24 @@ class WHEPClientWeb implements WHEPClient {
   });
 
   @override
-  Stream<String> get onConnectionState =>
-      _getStream("connectionstate", (event) {
-        if (event.hasProperty("detail".toJS).toDart) {
-          final detail = event.getProperty("detail".toJS);
-          if (detail != null && detail.isA<JSString>()) {
-            return (detail as JSString).toDart;
-          }
-        }
-        return "unknown";
-      });
+  Stream<String> get onConnectionState => _getStream("connectionstate", (
+    event,
+  ) {
+    // Performance optimization: Eliminate unnecessary string allocation on property lookup
+    if (event.isA<web.CustomEvent>()) {
+      final detail = (event as web.CustomEvent).detail;
+      if (detail != null && detail.isA<JSString>()) {
+        return (detail as JSString).toDart;
+      }
+    }
+    return "unknown";
+  });
 
   @override
   Stream<dynamic> get onError => _getStream("error", (event) {
-    if (event.hasProperty("detail".toJS).toDart) {
-      return event.getProperty("detail".toJS);
+    // Performance optimization: Fast path for CustomEvent details without stringify
+    if (event.isA<web.CustomEvent>()) {
+      return (event as web.CustomEvent).detail;
     }
     return event;
   });
@@ -201,7 +207,9 @@ Future<void>? _initWhepFuture;
 /// Dynamically loads the WHEP Client JavaScript.
 Future<void> initializeWHEP({String? cdnUrl, String version = "latest"}) async {
   if (cdnUrl != null && Uri.tryParse(cdnUrl)?.scheme != "https") {
-    throw ArgumentError("cdnUrl must be an HTTPS URL to prevent malicious injection.");
+    throw ArgumentError(
+      "cdnUrl must be an HTTPS URL to prevent malicious injection.",
+    );
   }
   if (isWHEPLibraryLoaded) return;
   if (_initWhepFuture != null) return _initWhepFuture;

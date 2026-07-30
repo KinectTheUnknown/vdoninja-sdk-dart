@@ -722,12 +722,8 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
       onListen: () {
         final JSFunction callback = ((web.Event event) {
           try {
-            web.console.log("[VDONinjaSDK Dart] Event fired: $type".toJS);
-            web.console.log(event);
             controller.add(mapEvent(event as web.CustomEvent));
           } catch (e) {
-            web.console.error("[VDONinjaSDK Dart] Error mapping event: $type".toJS);
-            web.console.error(e.toString().toJS);
             controller.addError(e);
           }
         }).toJS;
@@ -761,8 +757,6 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     final JSFunction messageCallback = ((web.MessageEvent event) {
       try {
         final rawData = event.data;
-        web.console.log("[VDONinjaSDK Dart] Raw DataChannel message received:".toJS);
-        web.console.log(rawData);
 
         dynamic parsedData;
         if (rawData.isA<JSString>()) {
@@ -805,8 +799,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
           }
         }
       } catch (e) {
-        web.console.error("[VDONinjaSDK Dart] Error in raw DataChannel listener:".toJS);
-        web.console.error(e.toString().toJS);
+        // Ignored to avoid leaking sensitive data
       }
     }).toJS;
 

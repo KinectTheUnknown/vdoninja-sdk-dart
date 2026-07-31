@@ -12,3 +12,7 @@
 ## $(date +%Y-%m-%d) - Prevent Redundant SDK Script Loading
 **Learning:** Calling `initialize()` concurrently across multiple UI components (e.g. WHIP and WHEP widgets mounting simultaneously) can cause race conditions in the DOM, where the same large JavaScript SDK `<script>` tag is injected multiple times before the first one finishes loading.
 **Action:** When creating asynchronous initialization methods that inject DOM elements or load external scripts, always use a cached file-level or class-level `Future` variable (`_initFuture`) to track the in-progress state and return it immediately to prevent redundant network requests and DOM pollution.
+
+## 2024-08-16 - JS Event Detail Strict Typing
+**Learning:** Using `event.detail.getProperty('property'.toJS)` inside highly frequent WebRTC event streams (like `onTrack` or `onDataReceived`) causes high cross-boundary serialization and string allocation overhead in dart:js_interop due to continuously allocating Dart Strings to JSStrings.
+**Action:** When handling hot JS CustomEvents with complex details, always use strictly typed `@anonymous extension type` definitions with `external JSAny? get propertyName;` to access properties directly. This eliminates the JSString allocation overhead entirely and speeds up event processing.

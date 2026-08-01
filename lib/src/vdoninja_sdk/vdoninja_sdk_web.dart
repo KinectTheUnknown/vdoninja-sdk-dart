@@ -42,9 +42,68 @@ dynamic _jsAnyToDart(JSAny? value) {
   }
 }
 
+/// Optimization: Replaced dynamic getProperty lookups with strongly typed
+/// @anonymous extension types to avoid continuous cross-boundary string
+/// allocation overhead during hot paths (DOM events).
+
+@JS()
+@anonymous
+extension type VDONinjaStateJS._(JSObject _) implements JSObject {
+  external JSBoolean? get connected;
+  external JSString? get room;
+  external JSString? get streamID;
+  external JSString? get uuid;
+  external JSBoolean? get roomJoined;
+  external JSBoolean? get publishing;
+}
+
+@JS()
+@anonymous
+extension type VDONinjaControllerObjJS._(JSObject _) implements JSObject {
+  external JSString get streamID;
+  external JSFunction get stop;
+}
+
+@JS()
+@anonymous
+extension type VDONinjaConnectionJS._(JSObject _) implements JSObject {
+  external JSAny? get dataChannel;
+  external JSString? get streamID;
+}
+
+@JS()
+@anonymous
+extension type VDONinjaEventDetailJS._(JSObject _) implements JSObject {
+  external JSAny? get track;
+  external JSAny? get streams;
+  external JSString? get uuid;
+  external JSString? get streamID;
+  external JSAny? get data;
+  external JSAny? get connection;
+  external JSNumber? get latency;
+  external JSObject? get info;
+  external JSBoolean? get muted;
+  external JSString? get trackId;
+  external JSString? get connectionType;
+  external JSString? get error;
+  external JSString? get message;
+  external JSAny? get details;
+  external JSAny? get list;
+  external JSString? get reason;
+}
+
+@JS()
+@anonymous
+extension type VDONinjaCustomEventJS._(JSObject _) implements JSObject {
+  external JSAny? get data;
+  external JSString? get uuid;
+  external JSString? get streamID;
+}
+
 @JS("VDONinjaSDK")
 extension type VDONinjaSDKJS._(JSObject _) implements JSObject {
   external VDONinjaSDKJS([JSObject? options]);
+  external VDONinjaStateJS? get state;
 
   external JSPromise connect([JSObject? options]);
   external void disconnect();
@@ -266,9 +325,9 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     return completer.future;
   }
 
-  JSObject? get _state {
+  VDONinjaStateJS? get _state {
     if (_jsSdk.hasProperty("state".toJS).toDart) {
-      return _jsSdk.getProperty<JSObject?>("state".toJS);
+      return _jsSdk.state;
     }
     return null;
   }
@@ -277,42 +336,42 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
   bool get isConnected {
     final state = _state;
     if (state == null) return false;
-    return state.getProperty<JSBoolean?>("connected".toJS)?.toDart ?? false;
+    return state.connected?.toDart ?? false;
   }
 
   @override
   String? get room {
     final state = _state;
     if (state == null) return null;
-    return state.getProperty<JSString?>("room".toJS)?.toDart;
+    return state.room?.toDart;
   }
 
   @override
   String? get streamID {
     final state = _state;
     if (state == null) return null;
-    return state.getProperty<JSString?>("streamID".toJS)?.toDart;
+    return state.streamID?.toDart;
   }
 
   @override
   String? get uuid {
     final state = _state;
     if (state == null) return null;
-    return state.getProperty<JSString?>("uuid".toJS)?.toDart;
+    return state.uuid?.toDart;
   }
 
   @override
   bool get isRoomJoined {
     final state = _state;
     if (state == null) return false;
-    return state.getProperty<JSBoolean?>("roomJoined".toJS)?.toDart ?? false;
+    return state.roomJoined?.toDart ?? false;
   }
 
   @override
   bool get isPublishing {
     final state = _state;
     if (state == null) return false;
-    return state.getProperty<JSBoolean?>("publishing".toJS)?.toDart ?? false;
+    return state.publishing?.toDart ?? false;
   }
 
   @override
@@ -593,10 +652,10 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     );
     final result = await jsPromise.toDart;
 
-    final controllerObj = result as JSObject;
+    final controllerObj = result as VDONinjaControllerObjJS;
     final finalStreamID =
-        (controllerObj.getProperty("streamID".toJS) as JSString).toDart;
-    final stopFunc = controllerObj.getProperty("stop".toJS) as JSFunction;
+        controllerObj.streamID.toDart;
+    final stopFunc = controllerObj.stop;
 
     return VDONinjaAutoConnectController(
       streamID: finalStreamID,
@@ -750,13 +809,14 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     if (!connection.hasProperty("dataChannel".toJS).toDart) {
       return;
     }
-    final dataChannel = connection.getProperty("dataChannel".toJS);
+    final connectionJs = connection as VDONinjaConnectionJS;
+    final dataChannel = connectionJs.dataChannel;
     if (dataChannel == null || dataChannel.isUndefinedOrNull) {
       return;
     }
 
     final jsDataChannel = dataChannel as JSObject;
-    final streamID = (connection.getProperty("streamID".toJS) as JSString?)?.toDart;
+    final streamID = connectionJs.streamID?.toDart;
 
     final JSFunction messageCallback = ((web.MessageEvent event) {
       try {
@@ -879,11 +939,11 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
   Stream<VDONinjaTrackEvent> get onTrack => _getStream("track", (event) {
     final detail = event.detail;
     if (detail != null && detail.isA<JSObject>()) {
-      final detailObj = detail as JSObject;
-      final track = detailObj.getProperty("track".toJS);
-      final streamsAny = detailObj.getProperty("streams".toJS);
-      final uuid = detailObj.getProperty("uuid".toJS) as JSString?;
-      final streamID = detailObj.getProperty("streamID".toJS) as JSString?;
+      final detailObj = detail as VDONinjaEventDetailJS;
+      final track = detailObj.track;
+      final streamsAny = detailObj.streams;
+      final uuid = detailObj.uuid;
+      final streamID = detailObj.streamID;
       late final List<dynamic> streamsList;
       if (streamsAny != null && streamsAny.isA<JSArray>()) {
         final dartList = (streamsAny as JSArray).toDart;
@@ -909,27 +969,27 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
   @override
   Stream<VDONinjaDataReceivedEvent> get onDataReceived =>
       _getStream("dataReceived", (event) {
-        final jsEvent = event as JSObject;
+        final jsEvent = event as VDONinjaCustomEventJS;
         JSAny? data;
         JSString? uuid;
         JSString? streamID;
 
         final detail = event.detail;
         if (detail != null && !detail.isUndefinedOrNull) {
-          final detailObj = detail as JSObject;
-          data = detailObj.getProperty("data".toJS);
-          uuid = detailObj.getProperty("uuid".toJS) as JSString?;
-          streamID = detailObj.getProperty("streamID".toJS) as JSString?;
+          final detailObj = detail as VDONinjaEventDetailJS;
+          data = detailObj.data;
+          uuid = detailObj.uuid;
+          streamID = detailObj.streamID;
         }
 
         if (data == null || data.isUndefinedOrNull) {
-          data = jsEvent.getProperty("data".toJS);
+          data = jsEvent.data;
         }
         if (uuid == null || uuid.isUndefinedOrNull) {
-          uuid = jsEvent.getProperty("uuid".toJS) as JSString?;
+          uuid = jsEvent.uuid;
         }
         if (streamID == null || streamID.isUndefinedOrNull) {
-          streamID = jsEvent.getProperty("streamID".toJS) as JSString?;
+          streamID = jsEvent.streamID;
         }
 
         return VDONinjaDataReceivedEvent(
@@ -944,9 +1004,9 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
       _getStream("peerConnected", (event) {
         final detail = event.detail;
         if (detail != null && detail.isA<JSObject>()) {
-          final detailObj = detail as JSObject;
-          final uuid = detailObj.getProperty("uuid".toJS) as JSString?;
-          final connection = detailObj.getProperty("connection".toJS);
+          final detailObj = detail as VDONinjaEventDetailJS;
+          final uuid = detailObj.uuid;
+          final connection = detailObj.connection;
           return {
             "uuid": uuid?.toDart ?? "",
             if (connection != null && !connection.isUndefinedOrNull) "connection": connection,
@@ -960,10 +1020,10 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
       _getStream("peerLatency", (event) {
         final detail = event.detail;
         if (detail != null && detail.isA<JSObject>()) {
-          final detailObj = detail as JSObject;
-          final uuid = detailObj.getProperty("uuid".toJS) as JSString?;
-          final latency = detailObj.getProperty("latency".toJS) as JSNumber?;
-          final streamID = detailObj.getProperty("streamID".toJS) as JSString?;
+          final detailObj = detail as VDONinjaEventDetailJS;
+          final uuid = detailObj.uuid;
+          final latency = detailObj.latency;
+          final streamID = detailObj.streamID;
 
           return VDONinjaPeerLatencyEvent(
             uuid: uuid?.toDart ?? "",
@@ -979,10 +1039,10 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
       _getStream("peerInfo", (event) {
         final detail = event.detail;
         if (detail != null && detail.isA<JSObject>()) {
-          final detailObj = detail as JSObject;
-          final uuid = detailObj.getProperty("uuid".toJS) as JSString?;
-          final streamID = detailObj.getProperty("streamID".toJS) as JSString?;
-          final info = detailObj.getProperty("info".toJS) as JSObject?;
+          final detailObj = detail as VDONinjaEventDetailJS;
+          final uuid = detailObj.uuid;
+          final streamID = detailObj.streamID;
+          final info = detailObj.info;
 
           return VDONinjaPeerInfoEvent(
             uuid: uuid?.toDart ?? "",
@@ -998,13 +1058,13 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
       _getStream("remoteVideoMuteState", (event) {
         final detail = event.detail;
         if (detail != null && detail.isA<JSObject>()) {
-          final detailObj = detail as JSObject;
-          final muted = detailObj.getProperty("muted".toJS) as JSBoolean?;
-          final trackId = detailObj.getProperty("trackId".toJS) as JSString?;
-          final streamID = detailObj.getProperty("streamID".toJS) as JSString?;
-          final uuid = detailObj.getProperty("uuid".toJS) as JSString?;
+          final detailObj = detail as VDONinjaEventDetailJS;
+          final muted = detailObj.muted;
+          final trackId = detailObj.trackId;
+          final streamID = detailObj.streamID;
+          final uuid = detailObj.uuid;
           final connectionType =
-              detailObj.getProperty("connectionType".toJS) as JSString?;
+              detailObj.connectionType;
 
           return VDONinjaRemoteVideoMuteStateEvent(
             muted: muted?.toDart ?? false,
@@ -1025,12 +1085,12 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
   Stream<VDONinjaErrorEvent> get onError => _getStream("error", (event) {
     final detail = event.detail;
     if (detail != null && detail.isA<JSObject>()) {
-      final detailObj = detail as JSObject;
+      final detailObj = detail as VDONinjaEventDetailJS;
       final message =
-          detailObj.getProperty("error".toJS) as JSString? ??
-          detailObj.getProperty("message".toJS) as JSString? ??
+          detailObj.error ??
+          detailObj.message ??
           "Unknown error".toJS;
-      final details = detailObj.getProperty("details".toJS);
+      final details = detailObj.details;
 
       return VDONinjaErrorEvent(
         message: message.toDart,
@@ -1044,8 +1104,8 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
   Stream<List<dynamic>> get onListing => _getStream("listing", (event) {
         final detail = event.detail;
         if (detail != null && detail.isA<JSObject>()) {
-          final detailObj = detail as JSObject;
-          final listAny = detailObj.getProperty("list".toJS);
+          final detailObj = detail as VDONinjaEventDetailJS;
+          final listAny = detailObj.list;
           if (listAny != null && listAny.isA<JSArray>()) {
             final dartList = (listAny as JSArray).toDart;
             return List<dynamic>.generate(dartList.length, (i) => _jsAnyToDart(dartList[i]));
@@ -1059,9 +1119,9 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
       _getStream("connectionFailed", (event) {
         final detail = event.detail;
         if (detail != null && detail.isA<JSObject>()) {
-          final detailObj = detail as JSObject;
-          final uuid = detailObj.getProperty("uuid".toJS) as JSString?;
-          final reason = detailObj.getProperty("reason".toJS) as JSString?;
+          final detailObj = detail as VDONinjaEventDetailJS;
+          final uuid = detailObj.uuid;
+          final reason = detailObj.reason;
           return {
             "uuid": uuid?.toDart ?? "",
             "reason": reason?.toDart ?? "",

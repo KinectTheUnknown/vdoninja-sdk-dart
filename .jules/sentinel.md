@@ -19,3 +19,7 @@
 **Vulnerability:** The dynamically loaded script URL (`cdnUrl`) lacked validation to ensure it was an HTTPS URL, allowing for potential malicious URI injection attacks (like `javascript:` or `data:`).
 **Learning:** When using user-supplied URLs for dynamic script loading, it's critical to restrict the URI scheme to `https` to prevent script execution vulnerabilities. Also, when checking `?.scheme` on a nullable `Uri` in Dart, avoid calling `.toLowerCase()` unconditionally to prevent compile-time null safety errors.
 **Prevention:** Validate `Uri.tryParse(cdnUrl)?.scheme == 'https'` before injecting a script via `document.createElement("script")`.
+## 2024-08-02 - Sensitive Data Exposure in Console Logs
+**Vulnerability:** Raw WebRTC events and DataChannel messages were logged directly to the browser console using `web.console.log`.
+**Learning:** This exposes sensitive information like IP addresses (via ICE candidates), stream keys, passwords, and private messages to end-users and malicious browser extensions.
+**Prevention:** Avoid using `web.console.log` or similar debug logging functions to output raw WebRTC events or DataChannel messages directly to the browser console.

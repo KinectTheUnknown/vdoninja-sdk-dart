@@ -1,3 +1,7 @@
+## 2026-08-04 - Dart/JS Interop Property Access Overhead
+**Learning:** Using `hasProperty` and dynamic string-based `getProperty('name'.toJS)` checks in hot event callbacks (like `onTrack` and `onDataReceived`) creates massive cross-boundary string allocation overhead. Every `.toJS` conversion allocates a new string in the JS engine.
+**Action:** Always define strictly typed `@anonymous extension type` wrappers with `external JSAny? get propertyName;` to access properties directly. This completely eliminates continuous string allocation overhead during high-frequency Dart/JS interop events.
+
 ## 2024-07-09 - JS Array parsing memory allocation
 **Learning:** Calling `List<dynamic>.generate` relies on dynamic memory allocation mapping for each array element, which creates significant execution overhead on `JSArray` conversions in dart:js_interop logic. Pre-allocating a fixed `List<dynamic>.filled(length, null)` buffer and indexing manually runs faster and scales better. We shouldn't use `JSON.stringify()` serialization due to data loss of non-stringifiable elements like `NaN`, `Infinity` and JS Functions when iterating array indices in Flutter web boundaries.
 **Action:** Always prefer statically pre-allocated lists `List.filled(length)` over `List.generate()` when traversing large JavaScript arrays across Dart JS interop.

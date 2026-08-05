@@ -42,6 +42,23 @@ dynamic _jsAnyToDart(JSAny? value) {
   }
 }
 
+@JS()
+@anonymous
+extension type VDONinjaTrackEventDetail._(JSObject _) implements JSObject {
+  external JSAny? get track;
+  external JSAny? get streams;
+  external JSString? get uuid;
+  external JSString? get streamID;
+}
+
+@JS()
+@anonymous
+extension type VDONinjaDataReceivedEventDetail._(JSObject _) implements JSObject {
+  external JSAny? get data;
+  external JSString? get uuid;
+  external JSString? get streamID;
+}
+
 @JS("VDONinjaSDK")
 extension type VDONinjaSDKJS._(JSObject _) implements JSObject {
   external VDONinjaSDKJS([JSObject? options]);
@@ -879,11 +896,13 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
   Stream<VDONinjaTrackEvent> get onTrack => _getStream("track", (event) {
     final detail = event.detail;
     if (detail != null && detail.isA<JSObject>()) {
-      final detailObj = detail as JSObject;
-      final track = detailObj.getProperty("track".toJS);
-      final streamsAny = detailObj.getProperty("streams".toJS);
-      final uuid = detailObj.getProperty("uuid".toJS) as JSString?;
-      final streamID = detailObj.getProperty("streamID".toJS) as JSString?;
+      // Performance optimization: Avoid cross-boundary string allocation via typed getters
+      final detailObj = detail as VDONinjaTrackEventDetail;
+      final track = detailObj.track;
+      final streamsAny = detailObj.streams;
+      final uuid = detailObj.uuid;
+      final streamID = detailObj.streamID;
+
       late final List<dynamic> streamsList;
       if (streamsAny != null && streamsAny.isA<JSArray>()) {
         final dartList = (streamsAny as JSArray).toDart;
@@ -916,10 +935,11 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
 
         final detail = event.detail;
         if (detail != null && !detail.isUndefinedOrNull) {
-          final detailObj = detail as JSObject;
-          data = detailObj.getProperty("data".toJS);
-          uuid = detailObj.getProperty("uuid".toJS) as JSString?;
-          streamID = detailObj.getProperty("streamID".toJS) as JSString?;
+          // Performance optimization: Direct property access on typed interop object
+          final detailObj = detail as VDONinjaDataReceivedEventDetail;
+          data = detailObj.data;
+          uuid = detailObj.uuid;
+          streamID = detailObj.streamID;
         }
 
         if (data == null || data.isUndefinedOrNull) {

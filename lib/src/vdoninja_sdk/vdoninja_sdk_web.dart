@@ -232,7 +232,9 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     String version = "latest",
   }) async {
     if (cdnUrl != null && Uri.tryParse(cdnUrl)?.scheme != "https") {
-      throw ArgumentError("cdnUrl must be an HTTPS URL to prevent malicious injection.");
+      throw ArgumentError(
+        "cdnUrl must be an HTTPS URL to prevent malicious injection.",
+      );
     }
     if (isSDKLoaded) return;
     if (_initFuture != null) return _initFuture;
@@ -722,12 +724,8 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
       onListen: () {
         final JSFunction callback = ((web.Event event) {
           try {
-            web.console.log("[VDONinjaSDK Dart] Event fired: $type".toJS);
-            web.console.log(event);
             controller.add(mapEvent(event as web.CustomEvent));
           } catch (e) {
-            web.console.error("[VDONinjaSDK Dart] Error mapping event: $type".toJS);
-            web.console.error(e.toString().toJS);
             controller.addError(e);
           }
         }).toJS;
@@ -756,13 +754,12 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     }
 
     final jsDataChannel = dataChannel as JSObject;
-    final streamID = (connection.getProperty("streamID".toJS) as JSString?)?.toDart;
+    final streamID =
+        (connection.getProperty("streamID".toJS) as JSString?)?.toDart;
 
     final JSFunction messageCallback = ((web.MessageEvent event) {
       try {
         final rawData = event.data;
-        web.console.log("[VDONinjaSDK Dart] Raw DataChannel message received:".toJS);
-        web.console.log(rawData);
 
         dynamic parsedData;
         if (rawData.isA<JSString>()) {
@@ -797,20 +794,25 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
         if (!isControlMessage) {
           final controller = _controllers["dataReceived"];
           if (controller != null && !controller.isClosed) {
-            controller.add(VDONinjaDataReceivedEvent(
-              data: parsedData,
-              uuid: uuid,
-              streamID: streamID,
-            ));
+            controller.add(
+              VDONinjaDataReceivedEvent(
+                data: parsedData,
+                uuid: uuid,
+                streamID: streamID,
+              ),
+            );
           }
         }
       } catch (e) {
-        web.console.error("[VDONinjaSDK Dart] Error in raw DataChannel listener:".toJS);
-        web.console.error(e.toString().toJS);
+        // Suppress errors to prevent leaking sensitive data or internals
       }
     }).toJS;
 
-    jsDataChannel.callMethod("addEventListener".toJS, "message".toJS, messageCallback);
+    jsDataChannel.callMethod(
+      "addEventListener".toJS,
+      "message".toJS,
+      messageCallback,
+    );
   }
 
   @override
@@ -949,7 +951,8 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
           final connection = detailObj.getProperty("connection".toJS);
           return {
             "uuid": uuid?.toDart ?? "",
-            if (connection != null && !connection.isUndefinedOrNull) "connection": connection,
+            if (connection != null && !connection.isUndefinedOrNull)
+              "connection": connection,
           };
         }
         return <String, dynamic>{};
@@ -1042,17 +1045,20 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
 
   @override
   Stream<List<dynamic>> get onListing => _getStream("listing", (event) {
-        final detail = event.detail;
-        if (detail != null && detail.isA<JSObject>()) {
-          final detailObj = detail as JSObject;
-          final listAny = detailObj.getProperty("list".toJS);
-          if (listAny != null && listAny.isA<JSArray>()) {
-            final dartList = (listAny as JSArray).toDart;
-            return List<dynamic>.generate(dartList.length, (i) => _jsAnyToDart(dartList[i]));
-          }
-        }
-        return <dynamic>[];
-      });
+    final detail = event.detail;
+    if (detail != null && detail.isA<JSObject>()) {
+      final detailObj = detail as JSObject;
+      final listAny = detailObj.getProperty("list".toJS);
+      if (listAny != null && listAny.isA<JSArray>()) {
+        final dartList = (listAny as JSArray).toDart;
+        return List<dynamic>.generate(
+          dartList.length,
+          (i) => _jsAnyToDart(dartList[i]),
+        );
+      }
+    }
+    return <dynamic>[];
+  });
 
   @override
   Stream<Map<String, dynamic>> get onConnectionFailed =>
@@ -1062,10 +1068,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
           final detailObj = detail as JSObject;
           final uuid = detailObj.getProperty("uuid".toJS) as JSString?;
           final reason = detailObj.getProperty("reason".toJS) as JSString?;
-          return {
-            "uuid": uuid?.toDart ?? "",
-            "reason": reason?.toDart ?? "",
-          };
+          return {"uuid": uuid?.toDart ?? "", "reason": reason?.toDart ?? ""};
         }
         return <String, dynamic>{};
       });

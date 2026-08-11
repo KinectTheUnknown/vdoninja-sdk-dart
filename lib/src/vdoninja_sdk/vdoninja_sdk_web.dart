@@ -42,6 +42,21 @@ dynamic _jsAnyToDart(JSAny? value) {
   }
 }
 
+@anonymous
+extension type _VDONinjaTrackDetailJS._(JSObject _) implements JSObject {
+  external JSAny? get track;
+  external JSAny? get streams;
+  external JSString? get uuid;
+  external JSString? get streamID;
+}
+
+@anonymous
+extension type _VDONinjaDataReceivedDetailJS._(JSObject _) implements JSObject {
+  external JSAny? get data;
+  external JSString? get uuid;
+  external JSString? get streamID;
+}
+
 @JS("VDONinjaSDK")
 extension type VDONinjaSDKJS._(JSObject _) implements JSObject {
   external VDONinjaSDKJS([JSObject? options]);
@@ -232,7 +247,9 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     String version = "latest",
   }) async {
     if (cdnUrl != null && Uri.tryParse(cdnUrl)?.scheme != "https") {
-      throw ArgumentError("cdnUrl must be an HTTPS URL to prevent malicious injection.");
+      throw ArgumentError(
+        "cdnUrl must be an HTTPS URL to prevent malicious injection.",
+      );
     }
     if (isSDKLoaded) return;
     if (_initFuture != null) return _initFuture;
@@ -726,7 +743,9 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
             web.console.log(event);
             controller.add(mapEvent(event as web.CustomEvent));
           } catch (e) {
-            web.console.error("[VDONinjaSDK Dart] Error mapping event: $type".toJS);
+            web.console.error(
+              "[VDONinjaSDK Dart] Error mapping event: $type".toJS,
+            );
             web.console.error(e.toString().toJS);
             controller.addError(e);
           }
@@ -756,12 +775,15 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     }
 
     final jsDataChannel = dataChannel as JSObject;
-    final streamID = (connection.getProperty("streamID".toJS) as JSString?)?.toDart;
+    final streamID =
+        (connection.getProperty("streamID".toJS) as JSString?)?.toDart;
 
     final JSFunction messageCallback = ((web.MessageEvent event) {
       try {
         final rawData = event.data;
-        web.console.log("[VDONinjaSDK Dart] Raw DataChannel message received:".toJS);
+        web.console.log(
+          "[VDONinjaSDK Dart] Raw DataChannel message received:".toJS,
+        );
         web.console.log(rawData);
 
         dynamic parsedData;
@@ -797,20 +819,28 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
         if (!isControlMessage) {
           final controller = _controllers["dataReceived"];
           if (controller != null && !controller.isClosed) {
-            controller.add(VDONinjaDataReceivedEvent(
-              data: parsedData,
-              uuid: uuid,
-              streamID: streamID,
-            ));
+            controller.add(
+              VDONinjaDataReceivedEvent(
+                data: parsedData,
+                uuid: uuid,
+                streamID: streamID,
+              ),
+            );
           }
         }
       } catch (e) {
-        web.console.error("[VDONinjaSDK Dart] Error in raw DataChannel listener:".toJS);
+        web.console.error(
+          "[VDONinjaSDK Dart] Error in raw DataChannel listener:".toJS,
+        );
         web.console.error(e.toString().toJS);
       }
     }).toJS;
 
-    jsDataChannel.callMethod("addEventListener".toJS, "message".toJS, messageCallback);
+    jsDataChannel.callMethod(
+      "addEventListener".toJS,
+      "message".toJS,
+      messageCallback,
+    );
   }
 
   @override
@@ -877,15 +907,20 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
 
   @override
   Stream<VDONinjaTrackEvent> get onTrack => _getStream("track", (event) {
+    // ⚡ Bolt: Use explicitly typed extension wrapper for direct property access instead
+    // of dynamic `.getProperty('propertyName'.toJS)`. This eliminates continuous Wasm/JS
+    // string allocation overhead in this high-frequency WebRTC event handler.
     final detail = event.detail;
     if (detail != null && detail.isA<JSObject>()) {
-      final detailObj = detail as JSObject;
-      final track = detailObj.getProperty("track".toJS);
-      final streamsAny = detailObj.getProperty("streams".toJS);
-      final uuid = detailObj.getProperty("uuid".toJS) as JSString?;
-      final streamID = detailObj.getProperty("streamID".toJS) as JSString?;
+      final detailObj = detail as _VDONinjaTrackDetailJS;
+      final track = detailObj.track;
+      final streamsAny = detailObj.streams;
+      final JSString? uuid = detailObj.uuid;
+      final JSString? streamID = detailObj.streamID;
       late final List<dynamic> streamsList;
-      if (streamsAny != null && streamsAny.isA<JSArray>()) {
+      if (streamsAny != null &&
+          !streamsAny.isUndefinedOrNull &&
+          streamsAny.isA<JSArray>()) {
         final dartList = (streamsAny as JSArray).toDart;
         final length = dartList.length;
         streamsList = List<dynamic>.filled(length, null, growable: true);
@@ -897,47 +932,55 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
       }
 
       return VDONinjaTrackEvent(
-        track: track,
+        track: (track != null && track.isUndefinedOrNull) ? null : track,
         streams: streamsList,
-        uuid: uuid?.toDart ?? "",
-        streamID: streamID?.toDart,
+        uuid: (uuid != null && !uuid.isUndefinedOrNull) ? uuid.toDart : "",
+        streamID: (streamID != null && !streamID.isUndefinedOrNull)
+            ? streamID.toDart
+            : null,
       );
     }
     return VDONinjaTrackEvent(track: null, streams: [], uuid: "");
   });
 
   @override
-  Stream<VDONinjaDataReceivedEvent> get onDataReceived =>
-      _getStream("dataReceived", (event) {
-        final jsEvent = event as JSObject;
-        JSAny? data;
-        JSString? uuid;
-        JSString? streamID;
+  Stream<VDONinjaDataReceivedEvent>
+  get onDataReceived => _getStream("dataReceived", (event) {
+    // ⚡ Bolt: Optimize dynamic data channel event parsing by utilizing typed
+    // JS interop wrappers to bypass slow string lookups for detail properties.
+    final jsEvent = event as _VDONinjaDataReceivedDetailJS;
+    JSAny? data;
+    JSString? uuid;
+    JSString? streamID;
 
-        final detail = event.detail;
-        if (detail != null && !detail.isUndefinedOrNull) {
-          final detailObj = detail as JSObject;
-          data = detailObj.getProperty("data".toJS);
-          uuid = detailObj.getProperty("uuid".toJS) as JSString?;
-          streamID = detailObj.getProperty("streamID".toJS) as JSString?;
-        }
+    final detail = event.detail;
+    if (detail != null && !detail.isUndefinedOrNull) {
+      final detailObj = detail as _VDONinjaDataReceivedDetailJS;
+      data = detailObj.data;
+      uuid = detailObj.uuid;
+      streamID = detailObj.streamID;
+    }
 
-        if (data == null || data.isUndefinedOrNull) {
-          data = jsEvent.getProperty("data".toJS);
-        }
-        if (uuid == null || uuid.isUndefinedOrNull) {
-          uuid = jsEvent.getProperty("uuid".toJS) as JSString?;
-        }
-        if (streamID == null || streamID.isUndefinedOrNull) {
-          streamID = jsEvent.getProperty("streamID".toJS) as JSString?;
-        }
+    if (data == null || data.isUndefinedOrNull) {
+      data = jsEvent.data;
+    }
+    if (uuid == null || uuid.isUndefinedOrNull) {
+      uuid = jsEvent.uuid;
+    }
+    if (streamID == null || streamID.isUndefinedOrNull) {
+      streamID = jsEvent.streamID;
+    }
 
-        return VDONinjaDataReceivedEvent(
-          data: _jsAnyToDart(data),
-          uuid: uuid?.toDart ?? "",
-          streamID: streamID?.toDart,
-        );
-      });
+    return VDONinjaDataReceivedEvent(
+      data: (data != null && data.isUndefinedOrNull)
+          ? null
+          : _jsAnyToDart(data),
+      uuid: (uuid != null && !uuid.isUndefinedOrNull) ? uuid.toDart : "",
+      streamID: (streamID != null && !streamID.isUndefinedOrNull)
+          ? streamID.toDart
+          : null,
+    );
+  });
 
   @override
   Stream<Map<String, dynamic>> get onPeerConnected =>
@@ -949,7 +992,8 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
           final connection = detailObj.getProperty("connection".toJS);
           return {
             "uuid": uuid?.toDart ?? "",
-            if (connection != null && !connection.isUndefinedOrNull) "connection": connection,
+            if (connection != null && !connection.isUndefinedOrNull)
+              "connection": connection,
           };
         }
         return <String, dynamic>{};
@@ -1042,17 +1086,20 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
 
   @override
   Stream<List<dynamic>> get onListing => _getStream("listing", (event) {
-        final detail = event.detail;
-        if (detail != null && detail.isA<JSObject>()) {
-          final detailObj = detail as JSObject;
-          final listAny = detailObj.getProperty("list".toJS);
-          if (listAny != null && listAny.isA<JSArray>()) {
-            final dartList = (listAny as JSArray).toDart;
-            return List<dynamic>.generate(dartList.length, (i) => _jsAnyToDart(dartList[i]));
-          }
-        }
-        return <dynamic>[];
-      });
+    final detail = event.detail;
+    if (detail != null && detail.isA<JSObject>()) {
+      final detailObj = detail as JSObject;
+      final listAny = detailObj.getProperty("list".toJS);
+      if (listAny != null && listAny.isA<JSArray>()) {
+        final dartList = (listAny as JSArray).toDart;
+        return List<dynamic>.generate(
+          dartList.length,
+          (i) => _jsAnyToDart(dartList[i]),
+        );
+      }
+    }
+    return <dynamic>[];
+  });
 
   @override
   Stream<Map<String, dynamic>> get onConnectionFailed =>
@@ -1062,10 +1109,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
           final detailObj = detail as JSObject;
           final uuid = detailObj.getProperty("uuid".toJS) as JSString?;
           final reason = detailObj.getProperty("reason".toJS) as JSString?;
-          return {
-            "uuid": uuid?.toDart ?? "",
-            "reason": reason?.toDart ?? "",
-          };
+          return {"uuid": uuid?.toDart ?? "", "reason": reason?.toDart ?? ""};
         }
         return <String, dynamic>{};
       });

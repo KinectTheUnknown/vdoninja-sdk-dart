@@ -2,3 +2,4 @@
 library;
 
 export "src/whip_client/whip_client_base.dart";
+export "src/whip_client/enums.dart";

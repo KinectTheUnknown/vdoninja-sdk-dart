@@ -809,7 +809,6 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
       try {
         final rawData = event.data;
 
-
         dynamic parsedData;
         if (rawData.isA<JSString>()) {
           final stringData = (rawData as JSString).toDart;

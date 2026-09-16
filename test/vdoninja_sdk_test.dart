@@ -125,5 +125,77 @@ void main() {
       final onConnectedList = await sdk.onConnected.toList();
       expect(onConnectedList, isEmpty);
     });
+
+    group("Model Tests", () {
+      test("VDONinjaPassword masking and equality", () {
+        const passwordString = VDONinjaPassword.string("secret");
+        expect(
+          passwordString.toString(),
+          equals("VDONinjaPassword.string(***)"),
+        );
+        expect(passwordString, equals(const VDONinjaPassword.string("secret")));
+        expect(
+          passwordString,
+          isNot(equals(const VDONinjaPassword.string("other"))),
+        );
+
+        const passwordBool = VDONinjaPassword.boolean(false);
+        expect(
+          passwordBool.toString(),
+          equals("VDONinjaPassword.boolean(false)"),
+        );
+        expect(passwordBool, equals(const VDONinjaPassword.boolean(false)));
+      });
+
+      test("VDONinjaIceServer credential masking and equality", () {
+        final serverConfig = VDONinjaIceServer(
+          urls: ["turn:test.vdo.ninja:443"],
+          username: "user",
+          credential: "password123",
+        );
+        expect(serverConfig.toString(), contains("credential: ***"));
+        expect(serverConfig.toString(), isNot(contains("password123")));
+
+        final serverObject = VDONinjaIceServer.object({
+          "urls": "turn:test.vdo.ninja:443",
+          "username": "user",
+          "credential": "password123",
+        });
+        expect(serverObject.toString(), contains("credential: ***"));
+        expect(serverObject.toString(), isNot(contains("password123")));
+
+        final sameServerConfig = VDONinjaIceServer(
+          urls: ["turn:test.vdo.ninja:443"],
+          username: "user",
+          credential: "password123",
+        );
+        expect(serverConfig, equals(sameServerConfig));
+      });
+
+      test("VDONinjaTurnServers equality", () {
+        final servers1 = VDONinjaTurnServers.list([
+          VDONinjaIceServer(urls: ["turn:test.vdo.ninja:443"]),
+        ]);
+        final servers2 = VDONinjaTurnServers.list([
+          VDONinjaIceServer(urls: ["turn:test.vdo.ninja:443"]),
+        ]);
+        expect(servers1, equals(servers2));
+        expect(
+          VDONinjaTurnServers.disable,
+          equals(VDONinjaTurnServers.disable),
+        );
+      });
+    });
+
+    test("initialize throws ArgumentError for non-HTTPS URL", () async {
+      await expectLater(
+        VDONinjaSDK.initialize(cdnUrl: "http://example.com/sdk.js"),
+        throwsArgumentError,
+      );
+      await expectLater(
+        VDONinjaSDK.initialize(cdnUrl: "//example.com/sdk.js"),
+        throwsArgumentError,
+      );
+    });
   });
 }

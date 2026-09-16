@@ -183,12 +183,120 @@ await whep.view();
 ## Additional information
 
 ### Running on Mobile & Desktop Platforms
-Because the official VDO.Ninja SDK is built around browser APIs (WebRTC, MediaStreams, WebSockets, and `postMessage`), it cannot run in a headless native Dart environment. 
+Because the official VDO.Ninja SDK is built around browser APIs (WebRTC, MediaStreams, WebSockets, and `postMessage`), it cannot run directly in a native Dart environment.
 
-To use this SDK on non-web platforms (like iOS/Android/Windows/Mac):
-1. Embed a WebView widget (e.g., using `webview_flutter` or `flutter_inappwebview`) loading an HTML page that includes the `vdoninja-sdk.js` script.
-2. Communicate between your Dart application and the WebView using JavaScript Channels (postMessage/evalJavaScript).
-3. The package includes safe stubs for all platform targets, allowing you to compile your code on all devices. Calling SDK methods on native platforms will throw an `UnsupportedError` to prevent silent failures.
+To use this SDK on non-web targets (iOS, Android, macOS, Windows):
+
+#### 1. Setup HTML and JavaScript
+Host an HTML page (locally or remotely) that loads the VDO.Ninja script and sets up bidirectional messaging:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Load the VDO.Ninja SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@vdoninja/sdk@latest/dist/vdoninja-sdk.js"></script>
+</head>
+<body>
+  <script>
+    // Initialize the SDK instance
+    const sdk = new window.VDONinjaSDK({ debug: true });
+
+    // Listen for events from the SDK and send them to Dart via a JavaScript Channel
+    sdk.on('connected', (event) => {
+      DartChannel.postMessage(JSON.stringify({ event: 'connected', data: event }));
+    });
+
+    sdk.on('track', (event) => {
+      // Handle rendering the remote video track here using standard HTML5 <video> elements
+    });
+
+    // Listen for commands from Dart
+    window.addEventListener('message', async (event) => {
+      const msg = event.data;
+
+      if (msg.action === 'connect') {
+        await sdk.connect(msg.host);
+        await sdk.joinRoom(msg.room);
+      } else if (msg.action === 'publish') {
+        // Retrieve local media stream and publish
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        await sdk.publish(stream, { streamID: msg.streamID });
+      }
+    });
+  </script>
+</body>
+</html>
+```
+
+#### 2. Configure Permissions (iOS & Android)
+Since you are capturing video and audio inside a WebView, you must request native OS permissions.
+
+**iOS (`ios/Runner/Info.plist`)**:
+```xml
+<key>NSCameraUsageDescription</key>
+<string>We need camera access for VDO.Ninja streaming.</string>
+<key>NSMicrophoneUsageDescription</key>
+<string>We need microphone access for VDO.Ninja streaming.</string>
+```
+
+**Android (`android/app/src/main/AndroidManifest.xml`)**:
+```xml
+<uses-permission android:name="android.permission.INTERNET"/>
+<uses-permission android:name="android.permission.CAMERA"/>
+<uses-permission android:name="android.permission.RECORD_AUDIO"/>
+<uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+```
+
+#### 3. Embed the WebView in Flutter
+Use `webview_flutter` to render the HTML, grant inline media playback, and register a JavaScript channel:
+
+```dart
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+
+class VDONinjaNativeView extends StatefulWidget {
+  @override
+  State<VDONinjaNativeView> createState() => _VDONinjaNativeViewState();
+}
+
+class _VDONinjaNativeViewState extends State<VDONinjaNativeView> {
+  late final WebViewController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..addJavaScriptChannel(
+        'DartChannel',
+        onMessageReceived: (JavaScriptMessage message) {
+          final decoded = jsonDecode(message.message);
+          print('Received from WebView: ${decoded['event']}');
+        },
+      )
+      ..loadRequest(Uri.parse('https://your-domain.com/vdoninja-host.html'));
+  }
+
+  // Example method to send commands to the WebView
+  void startStreaming() {
+    final command = jsonEncode({
+      'action': 'connect',
+      'host': 'wss://wss.vdo.ninja',
+      'room': 'my_room_id'
+    });
+    controller.runJavaScript("window.postMessage($command, '*');");
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return WebViewWidget(controller: controller);
+  }
+}
+```
+
+*Note: The package includes safe stubs for all platform targets, allowing you to compile your code on all devices. However, calling SDK methods (like `VDONinjaSDK.connect`) directly on native platforms will throw an `UnsupportedError` to prevent silent failures.*
 
 ## Credits & Attribution
 

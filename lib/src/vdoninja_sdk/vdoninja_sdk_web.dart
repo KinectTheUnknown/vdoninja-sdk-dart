@@ -291,7 +291,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
   }) async {
     if (cdnUrl != null) {
       final parsed = Uri.tryParse(cdnUrl);
-      if (parsed == null || (parsed.hasScheme && parsed.scheme != "https")) {
+      if (parsed == null || parsed.scheme != "https") {
         throw ArgumentError(
           "cdnUrl must be an HTTPS URL to prevent malicious injection.",
         );

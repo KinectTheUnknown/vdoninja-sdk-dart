@@ -1099,10 +1099,12 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
       final listAny = detailObj.list;
       if (listAny != null && listAny.isA<JSArray>()) {
         final dartList = (listAny as JSArray).toDart;
-        return List<dynamic>.generate(
-          dartList.length,
-          (i) => _jsAnyToDart(dartList[i]),
-        );
+        final length = dartList.length;
+        final resultList = List<dynamic>.filled(length, null, growable: true);
+        for (var i = 0; i < length; i++) {
+          resultList[i] = _jsAnyToDart(dartList[i]);
+        }
+        return resultList;
       }
     }
     return <dynamic>[];

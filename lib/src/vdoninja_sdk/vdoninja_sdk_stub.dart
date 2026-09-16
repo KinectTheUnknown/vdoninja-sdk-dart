@@ -407,9 +407,11 @@ Future<void> initialize({String? cdnUrl, String version = "latest"}) {
   if (cdnUrl != null) {
     final parsed = Uri.tryParse(cdnUrl);
     if (parsed == null || parsed.scheme != "https") {
-      return Future.error(ArgumentError(
-        "cdnUrl must be an HTTPS URL to prevent malicious injection.",
-      ));
+      return Future.error(
+        ArgumentError(
+          "cdnUrl must be an HTTPS URL to prevent malicious injection.",
+        ),
+      );
     }
   }
   return Future.value();

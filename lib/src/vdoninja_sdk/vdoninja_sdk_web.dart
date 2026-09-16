@@ -330,10 +330,12 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
   }
 
   VDONinjaStateJS? get _state {
-    if (_jsSdk.hasProperty("state".toJS).toDart) {
-      return _jsSdk.getProperty<VDONinjaStateJS?>("state".toJS);
+    // ⚡ Bolt: Removed redundant hasProperty check to optimize Wasm boundary calls
+    final val = _jsSdk.getProperty<JSAny?>("state".toJS);
+    if (val.isUndefinedOrNull) {
+      return null;
     }
-    return null;
+    return val as VDONinjaStateJS;
   }
 
   @override
@@ -809,9 +811,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
   }
 
   void _hookDataChannel(JSObject connection, String uuid) {
-    if (!connection.hasProperty("dataChannel".toJS).toDart) {
-      return;
-    }
+    // ⚡ Bolt: Removed redundant hasProperty check, relying on typed getter and isUndefinedOrNull
     final dataChannel = (connection as VDONinjaConnectionJS).dataChannel;
     if (dataChannel == null || dataChannel.isUndefinedOrNull) {
       return;

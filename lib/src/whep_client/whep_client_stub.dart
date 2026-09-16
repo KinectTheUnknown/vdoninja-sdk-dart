@@ -12,6 +12,9 @@ class WHEPClientStub implements WHEPClient {
   });
 
   @override
+  void dispose() {}
+
+  @override
   Future<dynamic> view() {
     throw UnsupportedError("WHEPClient is only supported on the Web platform.");
   }

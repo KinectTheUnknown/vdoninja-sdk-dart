@@ -25,7 +25,7 @@ extension type WHIPClientJS._(JSObject _) implements JSObject {
 /// Web-specific implementation of the WHIPClient.
 class WHIPClientWeb implements WHIPClient {
   final WHIPClientJS _jsClient;
-  final Map<String, StreamController> _controllers = {};
+  final Map<String, StreamController<dynamic>> _controllers = {};
   final Map<String, JSFunction> _jsCallbacks = {};
 
   WHIPClientWeb({
@@ -99,7 +99,26 @@ class WHIPClientWeb implements WHIPClient {
   }
 
   @override
-  void stop() => _jsClient.stop();
+  void stop() => dispose();
+
+  @override
+  void dispose() {
+    _jsClient.stop();
+
+    for (final entry in _jsCallbacks.entries) {
+      final type = entry.key;
+      final callback = entry.value;
+      _jsClient.removeEventListener(type.toJS, callback);
+    }
+    _jsCallbacks.clear();
+
+    for (final controller in _controllers.values) {
+      if (!controller.isClosed) {
+        controller.close();
+      }
+    }
+    _controllers.clear();
+  }
 
   @override
   Future<dynamic> getStats() async {

@@ -13,6 +13,9 @@ class WHIPClientStub implements WHIPClient {
   });
 
   @override
+  void dispose() {}
+
+  @override
   Future<void> publish(dynamic stream) {
     throw UnsupportedError("WHIPClient is only supported on the Web platform.");
   }

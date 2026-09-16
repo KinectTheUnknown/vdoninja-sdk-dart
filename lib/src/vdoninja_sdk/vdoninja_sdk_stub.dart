@@ -31,6 +31,9 @@ class VDONinjaSDKStub implements VDONinjaSDK {
   });
 
   @override
+  void dispose() {}
+
+  @override
   bool get isConnected => false;
 
   @override

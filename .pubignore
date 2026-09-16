@@ -1,0 +1,6 @@
+*.ps1
+*.sh
+integration_test/
+test_driver/
+.jules/
+build/

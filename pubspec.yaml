@@ -1,7 +1,15 @@
 name: vdoninja_sdk
 description: A type-safe Dart and Flutter wrapper for the official VDO.Ninja JS SDK, supporting WebRTC peer-to-peer streaming, custom P2P data channels, and standalone WHIP/WHEP clients.
 version: 0.0.3
-homepage:
+repository: https://github.com/KinectTheUnknown/vdoninja-sdk-dart
+issue_tracker: https://github.com/KinectTheUnknown/vdoninja-sdk-dart/issues
+homepage: https://github.com/KinectTheUnknown/vdoninja-sdk-dart
+topics:
+  - webrtc
+  - vdoninja
+  - video-streaming
+  - whip
+  - whep
 
 environment:
   sdk: ^3.12.1

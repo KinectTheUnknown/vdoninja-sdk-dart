@@ -26,7 +26,7 @@ extension type WHEPClientJS._(JSObject _) implements JSObject {
 /// Web-specific implementation of the WHEPClient.
 class WHEPClientWeb implements WHEPClient {
   final WHEPClientJS _jsClient;
-  final Map<String, StreamController> _controllers = {};
+  final Map<String, StreamController<dynamic>> _controllers = {};
   final Map<String, JSFunction> _jsCallbacks = {};
 
   WHEPClientWeb({

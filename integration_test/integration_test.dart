@@ -44,8 +44,9 @@ void main() {
       await tester.pumpWidget(const VDONinjaTestApp());
       await tester.pumpAndSettle();
 
-      final hostField =
-          tester.widget<TextField>(find.byKey(const Key("host-field")));
+      final hostField = tester.widget<TextField>(
+        find.byKey(const Key("host-field")),
+      );
       expect(hostField.controller?.text, "wss://wss.vdo.ninja");
     });
 
@@ -59,20 +60,25 @@ void main() {
 
       // Enter password
       await tester.enterText(
-          find.byKey(const Key("password-field")), "secret123");
+        find.byKey(const Key("password-field")),
+        "secret123",
+      );
       await tester.pumpAndSettle();
 
-      final roomField =
-          tester.widget<TextField>(find.byKey(const Key("room-field")));
+      final roomField = tester.widget<TextField>(
+        find.byKey(const Key("room-field")),
+      );
       expect(roomField.controller?.text, "test-room");
 
-      final passwordField =
-          tester.widget<TextField>(find.byKey(const Key("password-field")));
+      final passwordField = tester.widget<TextField>(
+        find.byKey(const Key("password-field")),
+      );
       expect(passwordField.controller?.text, "secret123");
     });
 
-    testWidgets("shows error log when room is empty and connect pressed",
-        (tester) async {
+    testWidgets("shows error log when room is empty and connect pressed", (
+      tester,
+    ) async {
       await tester.pumpWidget(const VDONinjaTestApp());
       await tester.pumpAndSettle();
 
@@ -111,8 +117,9 @@ void main() {
       expect(find.text("No events yet"), findsOneWidget);
     });
 
-    testWidgets("SDK isSDKLoaded returns true after initialization",
-        (tester) async {
+    testWidgets("SDK isSDKLoaded returns true after initialization", (
+      tester,
+    ) async {
       await tester.pumpWidget(const VDONinjaTestApp());
       await tester.pumpAndSettle();
 
@@ -168,8 +175,10 @@ void main() {
       expect(sdk.onPeerConnected, isA<Stream<Map<String, dynamic>>>());
       expect(sdk.onPeerLatency, isA<Stream<VDONinjaPeerLatencyEvent>>());
       expect(sdk.onPeerInfo, isA<Stream<VDONinjaPeerInfoEvent>>());
-      expect(sdk.onRemoteVideoMuteState,
-          isA<Stream<VDONinjaRemoteVideoMuteStateEvent>>());
+      expect(
+        sdk.onRemoteVideoMuteState,
+        isA<Stream<VDONinjaRemoteVideoMuteStateEvent>>(),
+      );
       expect(sdk.onError, isA<Stream<VDONinjaErrorEvent>>());
     });
 
@@ -191,10 +200,14 @@ void main() {
       expect(VDONinjaPassword.disable.value, false);
 
       // Equality
-      expect(const VDONinjaPassword.string("abc"),
-          const VDONinjaPassword.string("abc"));
-      expect(const VDONinjaPassword.string("abc"),
-          isNot(const VDONinjaPassword.string("xyz")));
+      expect(
+        const VDONinjaPassword.string("abc"),
+        const VDONinjaPassword.string("abc"),
+      );
+      expect(
+        const VDONinjaPassword.string("abc"),
+        isNot(const VDONinjaPassword.string("xyz")),
+      );
     });
 
     testWidgets("VDONinjaIceServer configuration works", (tester) async {
@@ -211,8 +224,12 @@ void main() {
       expect((server.value as Map)["urls"], ["stun:stun.l.google.com:19302"]);
 
       // Object constructor
-      const rawServer = VDONinjaIceServer.object({"urls": ["stun:example.com"]});
-      expect(rawServer.value, {"urls": ["stun:example.com"]});
+      const rawServer = VDONinjaIceServer.object({
+        "urls": ["stun:example.com"],
+      });
+      expect(rawServer.value, {
+        "urls": ["stun:example.com"],
+      });
     });
 
     testWidgets("VDONinjaTurnServers configuration works", (tester) async {
@@ -224,7 +241,9 @@ void main() {
 
       // List
       const servers = VDONinjaTurnServers.list([
-        VDONinjaIceServer.object({"urls": ["turn:example.com"]}),
+        VDONinjaIceServer.object({
+          "urls": ["turn:example.com"],
+        }),
       ]);
       expect(servers.value, isA<List<VDONinjaIceServer>>());
       expect(servers.value.length, 1);

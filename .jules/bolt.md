@@ -12,3 +12,6 @@
 ## $(date +%Y-%m-%d) - Prevent Redundant SDK Script Loading
 **Learning:** Calling `initialize()` concurrently across multiple UI components (e.g. WHIP and WHEP widgets mounting simultaneously) can cause race conditions in the DOM, where the same large JavaScript SDK `<script>` tag is injected multiple times before the first one finishes loading.
 **Action:** When creating asynchronous initialization methods that inject DOM elements or load external scripts, always use a cached file-level or class-level `Future` variable (`_initFuture`) to track the in-progress state and return it immediately to prevent redundant network requests and DOM pollution.
+## $(date +%Y-%m-%d) - JS Event Detail dynamic getProperty Overhead
+**Learning:** Using `getProperty("propertyName".toJS)` inside hot event streams like `onTrack` or `onDataReceived` incurs significant continuous string allocation overhead for cross-boundary JavaScript dynamic property lookup. Dart allows `@anonymous extension type` wrappers with typed `external JSAny? get propertyName;` getters which evaluate directly and eliminate Wasm string allocation overhead.
+**Action:** Replace `getProperty` strings with typed anonymous extension wrappers for frequently fired DOM event payloads (e.g. `event.detail`).

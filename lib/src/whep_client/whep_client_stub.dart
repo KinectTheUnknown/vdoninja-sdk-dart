@@ -90,10 +90,7 @@ WHEPClient createWHEPClient({
 bool get isWHEPLibraryLoaded => false;
 
 /// Stub initialization.
-Future<void> initializeWHEP({
-  String? cdnUrl,
-  String version = "latest",
-}) async {
+Future<void> initializeWHEP({String? cdnUrl, String version = "latest"}) async {
   if (cdnUrl != null) {
     final parsed = Uri.tryParse(cdnUrl);
     if (parsed == null || parsed.scheme != "https") {

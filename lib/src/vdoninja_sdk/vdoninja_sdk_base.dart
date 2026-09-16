@@ -714,6 +714,9 @@ abstract class VDONinjaSDK {
   /// Get connection statistics.
   Future<dynamic> getStats([String? uuid]);
 
+  /// Dispose of the SDK, cleaning up all resources, streams, and event listeners.
+  void dispose();
+
   /// Get list of all currently tracked streams.
   List<Map<String, dynamic>> getStreams();
 

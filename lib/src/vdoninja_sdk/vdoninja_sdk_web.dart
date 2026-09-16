@@ -127,6 +127,12 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
   final Map<String, StreamController> _controllers = {};
   final Map<String, JSFunction> _jsCallbacks = {};
 
+  StreamSubscription<Map<String, dynamic>>? _peerConnectedSub;
+  StreamSubscription<Map<String, dynamic>>? _connectionFailedSub;
+  StreamSubscription<Map<String, dynamic>>? _roomLeftSub;
+  final Map<String, JSFunction> _dataChannelCallbacks = {};
+  final Map<String, JSObject> _dataChannels = {};
+
   VDONinjaSDKWeb({
     String? host,
     String? room,
@@ -178,11 +184,20 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
          allowChunked: allowChunked,
          info: info,
        ) {
-    onPeerConnected.listen((event) {
+    _peerConnectedSub = onPeerConnected.listen((event) {
       final connection = event["connection"];
       if (connection != null && (connection as JSAny).isA<JSObject>()) {
         _hookDataChannel(connection as JSObject, event["uuid"] as String);
       }
+    });
+    _connectionFailedSub = onConnectionFailed.listen((event) {
+      final uuid = event["uuid"] as String?;
+      if (uuid != null) {
+        _removeDataChannelHook(uuid);
+      }
+    });
+    _roomLeftSub = onRoomLeft.listen((_) {
+      _removeAllDataChannelHooks();
     });
   }
 
@@ -860,11 +875,67 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
       }
     }).toJS;
 
+    _dataChannels[uuid] = jsDataChannel;
+    _dataChannelCallbacks[uuid] = messageCallback;
+
     jsDataChannel.callMethod(
       "addEventListener".toJS,
       "message".toJS,
       messageCallback,
     );
+  }
+
+  void _removeDataChannelHook(String uuid) {
+    final jsDataChannel = _dataChannels.remove(uuid);
+    final callback = _dataChannelCallbacks.remove(uuid);
+
+    if (jsDataChannel != null && callback != null) {
+      try {
+        jsDataChannel.callMethod(
+          "removeEventListener".toJS,
+          "message".toJS,
+          callback,
+        );
+      } catch (e) {
+        web.console.error(
+          "[VDONinjaSDK Dart] Error removing DataChannel listener:".toJS,
+        );
+        web.console.error(e.toString().toJS);
+      }
+    }
+  }
+
+  void _removeAllDataChannelHooks() {
+    final uuids = _dataChannels.keys.toList();
+    for (final uuid in uuids) {
+      _removeDataChannelHook(uuid);
+    }
+  }
+
+  @override
+  void dispose() {
+    _peerConnectedSub?.cancel();
+    _peerConnectedSub = null;
+    _connectionFailedSub?.cancel();
+    _connectionFailedSub = null;
+    _roomLeftSub?.cancel();
+    _roomLeftSub = null;
+
+    _removeAllDataChannelHooks();
+
+    for (final entry in _jsCallbacks.entries) {
+      final type = entry.key;
+      final callback = entry.value;
+      _jsSdk.removeEventListener(type.toJS, callback);
+    }
+    _jsCallbacks.clear();
+
+    for (final controller in _controllers.values) {
+      if (!controller.isClosed) {
+        controller.close();
+      }
+    }
+    _controllers.clear();
   }
 
   @override

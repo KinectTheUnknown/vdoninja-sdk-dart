@@ -82,7 +82,26 @@ class WHEPClientWeb implements WHEPClient {
   void muteVideo(bool muted) => _jsClient.muteVideo(muted.toJS);
 
   @override
-  void stop() => _jsClient.stop();
+  void stop() => dispose();
+
+  @override
+  void dispose() {
+    _jsClient.stop();
+
+    for (final entry in _jsCallbacks.entries) {
+      final type = entry.key;
+      final callback = entry.value;
+      _jsClient.removeEventListener(type.toJS, callback);
+    }
+    _jsCallbacks.clear();
+
+    for (final controller in _controllers.values) {
+      if (!controller.isClosed) {
+        controller.close();
+      }
+    }
+    _controllers.clear();
+  }
 
   @override
   Future<dynamic> getStats() async {

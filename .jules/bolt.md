@@ -15,3 +15,6 @@
 ## $(date +%Y-%m-%d) - JS Event Detail dynamic getProperty Overhead
 **Learning:** Using `getProperty("propertyName".toJS)` inside hot event streams like `onTrack` or `onDataReceived` incurs significant continuous string allocation overhead for cross-boundary JavaScript dynamic property lookup. Dart allows `@anonymous extension type` wrappers with typed `external JSAny? get propertyName;` getters which evaluate directly and eliminate Wasm string allocation overhead.
 **Action:** Replace `getProperty` strings with typed anonymous extension wrappers for frequently fired DOM event payloads (e.g. `event.detail`).
+## $(date +%Y-%m-%d) - JS Interop Property Lookup Overhead
+**Learning:** In Wasm-compiled Dart code, executing dynamic string-based lookup chains like `obj.hasProperty("prop".toJS)` followed by `obj.getProperty("prop".toJS)` generates redundant Wasm-to-JS boundary crossing overhead. Because JavaScript `undefined` maps safely to Dart's Wasm `externref` context without implicit null-pointer exceptions, evaluating `getProperty` directly and checking `.isUndefinedOrNull` is significantly faster and semantically equivalent.
+**Action:** When accessing known JS properties in hot paths, avoid `hasProperty` gate checks. Read the property directly and validate it using `.isUndefinedOrNull`.

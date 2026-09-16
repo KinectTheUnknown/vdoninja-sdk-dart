@@ -55,7 +55,7 @@ class _IntegrationTestPageState extends State<IntegrationTestPage> {
   bool _connected = false;
   String? _statusMessage;
   final List<EventLogEntry> _eventLog = [];
-  final List<StreamSubscription> _subscriptions = [];
+  final List<StreamSubscription<dynamic>> _subscriptions = [];
 
   @override
   void initState() {

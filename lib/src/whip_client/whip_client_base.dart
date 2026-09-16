@@ -53,6 +53,9 @@ abstract class WHIPClient {
   /// Stop publishing and cleanup all resources.
   void stop();
 
+  /// Dispose of the client, stopping the stream and cleaning up all resources.
+  void dispose();
+
   /// Retrieve the underlying WebRTC stats report.
   Future<dynamic> getStats();
 

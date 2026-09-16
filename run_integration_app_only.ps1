@@ -1,0 +1,1 @@
+flutter run -t integration_test/integration_test_app.dart -d chrome

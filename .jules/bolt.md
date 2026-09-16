@@ -9,10 +9,6 @@
 ## 2024-05-24 - JS Interop Serialization Overhead
 **Learning:** Using `JSON.parse(jsonEncode(obj))` and `jsonDecode(JSON.stringify(obj))` for bridging Dart Maps/Lists and JavaScript Objects across boundaries creates immense string allocation and serialization overhead. Dart's native `.jsify()` and `.dartify()` avoid intermediate strings and lossy JSON conversions while keeping interop fast.
 **Action:** Always use `.jsify()` to cast Dart maps/iterables to JS objects and `.dartify()` with a `try/catch` block for safe backward mapping instead of bridging via JSON.
-## 2026-07-24 - Prevent Redundant SDK Script Loading
+## $(date +%Y-%m-%d) - Prevent Redundant SDK Script Loading
 **Learning:** Calling `initialize()` concurrently across multiple UI components (e.g. WHIP and WHEP widgets mounting simultaneously) can cause race conditions in the DOM, where the same large JavaScript SDK `<script>` tag is injected multiple times before the first one finishes loading.
 **Action:** When creating asynchronous initialization methods that inject DOM elements or load external scripts, always use a cached file-level or class-level `Future` variable (`_initFuture`) to track the in-progress state and return it immediately to prevent redundant network requests and DOM pollution.
-
-## 2026-07-24 - Pre-allocating small JS arrays
-**Learning:** Using `List.filled(length)` to pre-allocate arrays during dart:js_interop translations introduces unnecessary execution and GC overhead when dealing with extremely small, short-lived arrays (like WebRTC stream lists which are usually single digits). The manual list tracking (e.g., maintaining a `validCount` and truncating `length`) adds measurable friction compared to Dart's standard default growable `[]` combined with `.add()`, which handles small list capacities seamlessly with lower instantiation overhead.
-**Action:** Avoid applying `List.filled` pre-allocation micro-optimizations to arrays with very small typical sizes. Default to idiomatic growable lists `[]` for arrays expected to have less than ~10 items.

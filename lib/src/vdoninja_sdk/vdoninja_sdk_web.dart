@@ -28,9 +28,9 @@ dynamic _jsAnyToDart(JSAny? value) {
   if (value.isA<JSArray>()) {
     final dartList = (value as JSArray).toDart;
     final length = dartList.length;
-    final list = <dynamic>[];
+    final list = List<dynamic>.filled(length, null, growable: true);
     for (var i = 0; i < length; i++) {
-      list.add(_jsAnyToDart(dartList[i]));
+      list[i] = _jsAnyToDart(dartList[i]);
     }
     return list;
   }
@@ -624,13 +624,21 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
   List<Map<String, dynamic>> getStreams() {
     final rawDartList = _jsSdk.getStreams().toDart;
     final length = rawDartList.length;
-    final streamsList = <Map<String, dynamic>>[];
+    // Performance optimization: Pre-allocate List buffer to avoid dynamic
+    // array resizing and reallocation overhead during JSArray conversion.
+    final streamsList = List<Map<String, dynamic>>.filled(
+      length,
+      const <String, dynamic>{},
+      growable: true,
+    );
+    var validCount = 0;
     for (var i = 0; i < length; i++) {
       final item = rawDartList[i];
       if (item != null && item.isA<JSObject>()) {
-        streamsList.add(_jsObjectToMap(item as JSObject));
+        streamsList[validCount++] = _jsObjectToMap(item as JSObject);
       }
     }
+    streamsList.length = validCount;
     return streamsList;
   }
 
@@ -749,13 +757,16 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
       final streamsAny = detailObj.getProperty("streams".toJS);
       final uuid = detailObj.getProperty("uuid".toJS) as JSString?;
       final streamID = detailObj.getProperty("streamID".toJS) as JSString?;
-      final streamsList = <dynamic>[];
+      late final List<dynamic> streamsList;
       if (streamsAny != null && streamsAny.isA<JSArray>()) {
         final dartList = (streamsAny as JSArray).toDart;
         final length = dartList.length;
+        streamsList = List<dynamic>.filled(length, null, growable: true);
         for (var i = 0; i < length; i++) {
-          streamsList.add(dartList[i]);
+          streamsList[i] = dartList[i];
         }
+      } else {
+        streamsList = <dynamic>[];
       }
 
       return VDONinjaTrackEvent(

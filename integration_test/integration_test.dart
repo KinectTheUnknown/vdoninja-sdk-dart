@@ -12,8 +12,8 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   FlutterError.onError = (FlutterErrorDetails details) {
-    print("FLUTTER ERROR: ${details.exception}");
-    print(details.stack);
+    debugPrint("FLUTTER ERROR: ${details.exception}");
+    debugPrint(details.stack?.toString());
   };
 
   group("VDO.Ninja SDK Integration Test App", () {

@@ -89,6 +89,8 @@ extension type VDONinjaEventDetailJS._(JSObject _) implements JSObject {
 extension type VDONinjaSDKJS._(JSObject _) implements JSObject {
   external VDONinjaSDKJS([JSObject? options]);
 
+  external JSAny? get state;
+
   external JSPromise connect([JSObject? options]);
   external void disconnect();
 
@@ -330,8 +332,8 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
   }
 
   VDONinjaStateJS? get _state {
-    // ⚡ Bolt: Removed redundant hasProperty check to optimize Wasm boundary calls
-    final val = _jsSdk.getProperty<JSAny?>("state".toJS);
+    // ⚡ Bolt: Removed dynamic getProperty string lookup for state to avoid Wasm allocation overhead
+    final val = _jsSdk.state;
     if (val.isUndefinedOrNull) {
       return null;
     }

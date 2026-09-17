@@ -85,7 +85,13 @@ WHIPClient createWHIPClient({
 bool get isWHIPLibraryLoaded => false;
 
 /// Stub initialization.
-Future<void> initializeWHIP({
-  String? cdnUrl,
-  String version = "latest",
-}) async {}
+Future<void> initializeWHIP({String? cdnUrl, String version = "latest"}) async {
+  if (cdnUrl != null) {
+    final parsed = Uri.tryParse(cdnUrl);
+    if (parsed == null || parsed.scheme != "https") {
+      throw ArgumentError(
+        "cdnUrl must be an HTTPS URL to prevent malicious injection.",
+      );
+    }
+  }
+}

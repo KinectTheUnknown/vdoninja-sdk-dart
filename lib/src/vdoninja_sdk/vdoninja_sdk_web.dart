@@ -790,10 +790,6 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
           try {
             controller.add(mapEvent(event as web.CustomEvent));
           } catch (e) {
-            web.console.error(
-              "[VDONinjaSDK Dart] Error mapping event: $type".toJS,
-            );
-            web.console.error(e.toString().toJS);
             controller.addError(e);
           }
         }).toJS;
@@ -868,12 +864,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
             );
           }
         }
-      } catch (e) {
-        web.console.error(
-          "[VDONinjaSDK Dart] Error in raw DataChannel listener:".toJS,
-        );
-        web.console.error(e.toString().toJS);
-      }
+      } catch (_) {}
     }).toJS;
 
     _dataChannels[uuid] = jsDataChannel;
@@ -897,12 +888,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
           "message".toJS,
           callback,
         );
-      } catch (e) {
-        web.console.error(
-          "[VDONinjaSDK Dart] Error removing DataChannel listener:".toJS,
-        );
-        web.console.error(e.toString().toJS);
-      }
+      } catch (_) {}
     }
   }
 

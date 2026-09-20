@@ -85,6 +85,13 @@ extension type VDONinjaEventDetailJS._(JSObject _) implements JSObject {
   external JSAny? get reason;
 }
 
+@JS()
+@anonymous
+extension type _WindowVDONinjaExt(JSObject _) implements JSObject {
+  @JS("VDONinjaSDK")
+  external JSAny? get vdoNinjaSdk;
+}
+
 @JS("VDONinjaSDK")
 extension type VDONinjaSDKJS._(JSObject _) implements JSObject {
   external VDONinjaSDKJS([JSObject? options]);
@@ -279,7 +286,7 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
 
   /// Check if the VDO.Ninja JavaScript library is loaded in the browser.
   static bool get isSDKLoaded {
-    return web.window.hasProperty("VDONinjaSDK".toJS).toDart;
+    return !(web.window as _WindowVDONinjaExt).vdoNinjaSdk.isUndefinedOrNull;
   }
 
   // Cache the initialization future to prevent redundant <script> injections

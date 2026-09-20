@@ -1,101 +1,85 @@
 import "dart:async";
 import "dart:js_interop";
+import "dart:js_interop_unsafe";
 import "package:web/web.dart" as web;
-import "whip_client_base.dart";
+import "whep_client_base.dart";
 
 JSObject _mapToJSObject(Map<String, dynamic> map) {
   return map.jsify() as JSObject;
 }
 
-@JS("WHIPClient")
-extension type WHIPClientJS._(JSObject _) implements JSObject {
-  external WHIPClientJS(JSString endpoint, [JSObject? options]);
+@JS("WHEPClient")
+extension type WHEPClientJS._(JSObject _) implements JSObject {
+  external WHEPClientJS(JSString endpoint, [JSObject? options]);
 
-  external JSPromise publish(JSObject stream);
-  external JSPromise replaceTrack(JSObject oldTrack, JSObject newTrack);
+  external JSPromise view();
+  external JSObject? getStream();
+  external void muteAudio(JSBoolean muted);
+  external void muteVideo(JSBoolean muted);
   external void stop();
   external JSPromise getStats();
-  external JSPromise restartIce();
 
   external void addEventListener(JSString type, JSFunction callback);
   external void removeEventListener(JSString type, JSFunction callback);
 }
 
-/// Web-specific implementation of the WHIPClient.
-class WHIPClientWeb implements WHIPClient {
-  final WHIPClientJS _jsClient;
+/// Web-specific implementation of the WHEPClient.
+class WHEPClientWeb implements WHEPClient {
+  final WHEPClientJS _jsClient;
   final Map<String, StreamController<dynamic>> _controllers = {};
   final Map<String, JSFunction> _jsCallbacks = {};
 
-  WHIPClientWeb({
+  WHEPClientWeb({
     required String endpoint,
     String? authToken,
-    String? videoCodec,
-    int? videoBitrate,
-    int? audioBitrate,
+    bool? audio,
+    bool? video,
     bool? trickleIce,
   }) : _jsClient = _createJsInstance(
          endpoint: endpoint,
          authToken: authToken,
-         videoCodec: videoCodec,
-         videoBitrate: videoBitrate,
-         audioBitrate: audioBitrate,
+         audio: audio,
+         video: video,
          trickleIce: trickleIce,
        );
 
-  static WHIPClientJS _createJsInstance({
+  static WHEPClientJS _createJsInstance({
     required String endpoint,
     String? authToken,
-    String? videoCodec,
-    int? videoBitrate,
-    int? audioBitrate,
+    bool? audio,
+    bool? video,
     bool? trickleIce,
   }) {
-    if (!isWHIPLibraryLoaded) {
+    if (!isWHEPLibraryLoaded) {
       throw StateError(
-        "WHIPClient library has not been loaded. Call WHIPClient.initialize() first.",
+        "WHEPClient library has not been loaded. Call WHEPClient.initialize() first.",
       );
     }
 
     final options = <String, dynamic>{};
     if (authToken != null) options["authToken"] = authToken;
-    if (videoCodec != null) options["videoCodec"] = videoCodec;
-    if (videoBitrate != null) options["videoBitrate"] = videoBitrate;
-    if (audioBitrate != null) options["audioBitrate"] = audioBitrate;
+    if (audio != null) options["audio"] = audio;
+    if (video != null) options["video"] = video;
     if (trickleIce != null) options["trickleIce"] = trickleIce;
 
-    return WHIPClientJS(endpoint.toJS, _mapToJSObject(options));
+    return WHEPClientJS(endpoint.toJS, _mapToJSObject(options));
   }
 
   @override
-  Future<void> publish(dynamic stream) async {
-    final JSObject jsStream;
-    try {
-      jsStream = stream as JSObject;
-    } catch (_) {
-      throw ArgumentError("stream must be a JSObject representing MediaStream");
-    }
-
-    final jsPromise = _jsClient.publish(jsStream);
-    await jsPromise.toDart;
+  Future<dynamic> view() async {
+    final jsPromise = _jsClient.view();
+    final result = await jsPromise.toDart;
+    return result;
   }
 
   @override
-  Future<void> replaceTrack(dynamic oldTrack, dynamic newTrack) async {
-    final JSObject jsOldTrack;
-    final JSObject jsNewTrack;
-    try {
-      jsOldTrack = oldTrack as JSObject;
-      jsNewTrack = newTrack as JSObject;
-    } catch (_) {
-      throw ArgumentError(
-        "tracks must be JSObjects representing MediaStreamTracks",
-      );
-    }
+  dynamic getStream() => _jsClient.getStream();
 
-    final jsPromise = _jsClient.replaceTrack(jsOldTrack, jsNewTrack);
-    await jsPromise.toDart;
-  }
+  @override
+  void muteAudio(bool muted) => _jsClient.muteAudio(muted.toJS);
+
+  @override
+  void muteVideo(bool muted) => _jsClient.muteVideo(muted.toJS);
 
   @override
   void stop() => dispose();
@@ -124,12 +108,6 @@ class WHIPClientWeb implements WHIPClient {
     final jsPromise = _jsClient.getStats();
     final result = await jsPromise.toDart;
     return result;
-  }
-
-  @override
-  Future<void> restartIce() async {
-    final jsPromise = _jsClient.restartIce();
-    await jsPromise.toDart;
   }
 
   Stream<T> _getStream<T>(String type, T Function(web.Event event) mapEvent) {
@@ -167,6 +145,16 @@ class WHIPClientWeb implements WHIPClient {
 
   @override
   Stream<void> get onConnected => _getStream("connected", (_) {});
+
+  @override
+  Stream<dynamic> get onTrack => _getStream("track", (event) {
+    // Performance optimization: Use direct getter access with type check
+    // to avoid string allocations and cross-boundary overhead in hot paths
+    if (event.isA<web.CustomEvent>()) {
+      return (event as web.CustomEvent).detail;
+    }
+    return event;
+  });
 
   @override
   Stream<String> get onIceState => _getStream("icestate", (event) {
@@ -210,43 +198,33 @@ class WHIPClientWeb implements WHIPClient {
   Stream<void> get onStopped => _getStream("stopped", (_) {});
 }
 
-/// Helper function to create a WHIP client.
-WHIPClient createWHIPClient({
+/// Helper function to create a WHEP client.
+WHEPClient createWHEPClient({
   required String endpoint,
   String? authToken,
-  String? videoCodec,
-  int? videoBitrate,
-  int? audioBitrate,
+  bool? audio,
+  bool? video,
   bool? trickleIce,
 }) {
-  return WHIPClientWeb(
+  return WHEPClientWeb(
     endpoint: endpoint,
     authToken: authToken,
-    videoCodec: videoCodec,
-    videoBitrate: videoBitrate,
-    audioBitrate: audioBitrate,
+    audio: audio,
+    video: video,
     trickleIce: trickleIce,
   );
 }
 
-
-@JS()
-@anonymous
-extension type _WindowWHIPExt(JSObject _) implements JSObject {
-  @JS("WHIPClient")
-  external JSAny? get whipClient;
-}
-
 /// Library status check.
-bool get isWHIPLibraryLoaded =>
-    !(web.window as _WindowWHIPExt).whipClient.isUndefinedOrNull;
+bool get isWHEPLibraryLoaded =>
+    web.window.hasProperty("WHEPClient".toJS).toDart;
 
 // Cache the initialization future to prevent redundant <script> injections
 // and race conditions if initialize() is called concurrently.
-Future<void>? _initWhipFuture;
+Future<void>? _initWhepFuture;
 
-/// Dynamically loads the WHIP Client JavaScript.
-Future<void> initializeWHIP({String? cdnUrl, String version = "latest"}) async {
+/// Dynamically loads the WHEP Client JavaScript.
+Future<void> initializeWHEP({String? cdnUrl, String version = "latest"}) async {
   if (cdnUrl != null) {
     final parsed = Uri.tryParse(cdnUrl);
     if (parsed == null || parsed.scheme != "https") {
@@ -255,30 +233,30 @@ Future<void> initializeWHIP({String? cdnUrl, String version = "latest"}) async {
       );
     }
   }
-  if (isWHIPLibraryLoaded) return;
-  if (_initWhipFuture != null) return _initWhipFuture;
+  if (isWHEPLibraryLoaded) return;
+  if (_initWhepFuture != null) return _initWhepFuture;
 
   final completer = Completer<void>();
-  _initWhipFuture = completer.future;
+  _initWhepFuture = completer.future;
 
   final script = web.document.createElement("script") as web.HTMLScriptElement;
   final safeVersion = Uri.encodeComponent(version);
   script.src =
       cdnUrl ??
-      "https://cdn.jsdelivr.net/gh/steveseguin/ninjasdk@$safeVersion/whip-client.js";
+      "https://cdn.jsdelivr.net/gh/steveseguin/ninjasdk@$safeVersion/whep-client.js";
   script.type = "text/javascript";
   script.async = true;
   script.crossOrigin = "anonymous";
 
   script.onload = (web.Event event) {
-    _initWhipFuture = null;
+    _initWhepFuture = null;
     completer.complete();
   }.toJS;
 
   script.onerror = (web.Event event) {
-    _initWhipFuture = null;
+    _initWhepFuture = null;
     completer.completeError(
-      Exception("Failed to load WHIPClient script from ${script.src}"),
+      Exception("Failed to load WHEPClient script from ${script.src}"),
     );
   }.toJS;
 

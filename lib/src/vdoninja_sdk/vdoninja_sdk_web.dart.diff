@@ -1,0 +1,23 @@
+--- lib/src/vdoninja_sdk/vdoninja_sdk_web.dart
++++ lib/src/vdoninja_sdk/vdoninja_sdk_web.dart
+@@ -86,6 +86,12 @@
+ }
+
++@JS()
++@anonymous
++extension type _WindowVDONinjaExt(JSObject _) implements JSObject {
++  external JSAny? get VDONinjaSDK;
++}
++
+ @JS("VDONinjaSDK")
+ extension type VDONinjaSDKJS._(JSObject _) implements JSObject {
+   external VDONinjaSDKJS([JSObject? options]);
+@@ -279,7 +285,7 @@
+
+   /// Check if the VDO.Ninja JavaScript library is loaded in the browser.
+   static bool get isSDKLoaded {
+-    return web.window.hasProperty("VDONinjaSDK".toJS).toDart;
++    return !(web.window as _WindowVDONinjaExt).VDONinjaSDK.isUndefinedOrNull;
+   }
+
+ // Cache the initialization future to prevent redundant <script> injections

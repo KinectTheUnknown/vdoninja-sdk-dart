@@ -1,0 +1,20 @@
+--- lib/src/whep_client/whep_client_web.dart
++++ lib/src/whep_client/whep_client_web.dart
+@@ -216,8 +216,17 @@
+ }
+
++@JS("window")
++external JSObject get _window;
++
++@JS()
++@anonymous
++extension type _WindowWHEPExt(JSObject _) implements JSObject {
++  external JSAny? get WHEPClient;
++}
++
+ /// Library status check.
+ bool get isWHEPLibraryLoaded =>
+-    web.window.hasProperty("WHEPClient".toJS).toDart;
++    !(_window as _WindowWHEPExt).WHEPClient.isUndefinedOrNull;
+
+ // Cache the initialization future to prevent redundant <script> injections

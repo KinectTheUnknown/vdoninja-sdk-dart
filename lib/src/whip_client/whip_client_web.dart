@@ -1,5 +1,6 @@
 import "dart:async";
 import "dart:js_interop";
+import "dart:js_interop_unsafe";
 import "package:web/web.dart" as web;
 import "whip_client_base.dart";
 
@@ -229,17 +230,11 @@ WHIPClient createWHIPClient({
   );
 }
 
-
-@JS()
-@anonymous
-extension type _WindowWHIPExt(JSObject _) implements JSObject {
-  @JS("WHIPClient")
-  external JSAny? get whipClient;
-}
-
 /// Library status check.
-bool get isWHIPLibraryLoaded =>
-    !(web.window as _WindowWHIPExt).whipClient.isUndefinedOrNull;
+bool get isWHIPLibraryLoaded => () {
+  final val = web.window.getProperty("WHIPClient".toJS);
+  return val != null && !val.isUndefinedOrNull;
+}();
 
 // Cache the initialization future to prevent redundant <script> injections
 // and race conditions if initialize() is called concurrently.

@@ -1,6 +1,5 @@
 import "dart:async";
 import "dart:js_interop";
-import "dart:js_interop_unsafe";
 import "package:web/web.dart" as web;
 import "whep_client_base.dart";
 
@@ -215,9 +214,17 @@ WHEPClient createWHEPClient({
   );
 }
 
+extension type _WindowWHEPClientExt(web.Window _) implements web.Window {
+  @JS("WHEPClient")
+  external JSAny? get whepClient;
+}
+
 /// Library status check.
-bool get isWHEPLibraryLoaded =>
-    web.window.hasProperty("WHEPClient".toJS).toDart;
+bool get isWHEPLibraryLoaded {
+  // ⚡ Bolt: Avoid hasProperty Wasm-crossing string allocation overhead.
+  final val = (web.window as _WindowWHEPClientExt).whepClient;
+  return !val.isUndefinedOrNull;
+}
 
 // Cache the initialization future to prevent redundant <script> injections
 // and race conditions if initialize() is called concurrently.

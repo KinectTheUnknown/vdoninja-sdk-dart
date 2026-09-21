@@ -59,6 +59,11 @@ extension type VDONinjaAutoConnectControllerJS._(JSObject _)
   external JSFunction get stop;
 }
 
+extension type _WindowVDONinjaSDKExt(web.Window _) implements web.Window {
+  @JS("VDONinjaSDK")
+  external JSAny? get vdoNinjaSdk;
+}
+
 @anonymous
 extension type VDONinjaConnectionJS._(JSObject _) implements JSObject {
   external JSAny? get dataChannel;
@@ -279,7 +284,9 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
 
   /// Check if the VDO.Ninja JavaScript library is loaded in the browser.
   static bool get isSDKLoaded {
-    return web.window.hasProperty("VDONinjaSDK".toJS).toDart;
+    // ⚡ Bolt: Avoid hasProperty Wasm-crossing string allocation overhead.
+    final val = (web.window as _WindowVDONinjaSDKExt).vdoNinjaSdk;
+    return !val.isUndefinedOrNull;
   }
 
   // Cache the initialization future to prevent redundant <script> injections

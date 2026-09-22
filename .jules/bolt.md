@@ -18,3 +18,10 @@
 ## $(date +%Y-%m-%d) - JS Interop Property Lookup Overhead
 **Learning:** In Wasm-compiled Dart code, executing dynamic string-based lookup chains like `obj.hasProperty("prop".toJS)` followed by `obj.getProperty("prop".toJS)` generates redundant Wasm-to-JS boundary crossing overhead. Because JavaScript `undefined` maps safely to Dart's Wasm `externref` context without implicit null-pointer exceptions, evaluating `getProperty` directly and checking `.isUndefinedOrNull` is significantly faster and semantically equivalent.
 **Action:** When accessing known JS properties in hot paths, avoid `hasProperty` gate checks. Read the property directly and validate it using `.isUndefinedOrNull`.
+## $(date +%Y-%m-%d) - JS Interop Map Allocation in Hot Paths
+**Learning:** In Dart-to-JS/Wasm interop, creating a Dart `Map<String, dynamic>` and converting it to JavaScript via `.jsify()` is extremely slow (e.g., ~280ms per 100k iterations) because it allocates Wasm dictionary memory and requires deep cross-boundary string iteration. Defining an `@anonymous extension type` with an `external factory` evaluates directly to a JS object with Wasm externref setters, executing ~70x faster (~4ms per 100k iterations).
+**Action:** When constructing objects for JavaScript in hot paths (like P2P messaging `sendData`), avoid `Map` and `.jsify()`. Use `@anonymous extension type` factories instead.
+
+## $(date +%Y-%m-%d) - JSON Parsing Overhead across Boundaries
+**Learning:** When a JavaScript event payload contains a large stringified JSON object (as a `JSString`), calling `.toDart` and then `jsonDecode(string)` forces the Wasm bridge to copy the entire UTF-16 payload into Dart memory just to parse it. Wrapping `JSON.parse` natively using `@JS("JSON.parse") external JSAny _jsonParse(JSString text);` executes the parse entirely on the V8/SpiderMonkey engine side and is ~5-10x faster.
+**Action:** When parsing JSON payloads originating from JavaScript events, prefer binding and invoking `JSON.parse` natively instead of passing the raw string string across the Wasm boundary to Dart's `jsonDecode`.

@@ -272,7 +272,7 @@ class VDONinjaIceServerConfig extends VDONinjaIceServerObject {
 
   @override
   String toString() =>
-      "VDONinjaIceServer(urls: ${value['urls']}, username: ${value['username']}, credential: ${value['credential'] != null ? '***' : 'null'})";
+      "VDONinjaIceServer(urls: ${value['urls']}, username: ${value['username'] != null ? '***' : 'null'}, credential: ${value['credential'] != null ? '***' : 'null'})";
 }
 
 class VDONinjaIceServerObject extends VDONinjaIceServer {
@@ -285,6 +285,12 @@ class VDONinjaIceServerObject extends VDONinjaIceServer {
     final Map<String, dynamic> safeMap = Map<String, dynamic>.from(value);
     if (safeMap.containsKey("credential") && safeMap["credential"] != null) {
       safeMap["credential"] = "***";
+    }
+    if (safeMap.containsKey("username") && safeMap["username"] != null) {
+      safeMap["username"] = "***";
+    }
+    if (safeMap.containsKey("password") && safeMap["password"] != null) {
+      safeMap["password"] = "***";
     }
     return "VDONinjaIceServer.object($safeMap)";
   }

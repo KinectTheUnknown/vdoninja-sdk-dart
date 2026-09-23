@@ -1,9 +1,11 @@
 import "dart:async";
-import "dart:convert";
 import "dart:js_interop";
 import "dart:js_interop_unsafe";
 import "package:web/web.dart" as web;
 import "vdoninja_sdk_base.dart";
+
+@JS("JSON.parse")
+external JSAny? _jsParseJson(JSString str);
 
 /// Helper to convert a Dart Map or List to a JSObject or JSArray.
 JSObject _mapToJSObject(Map<String, dynamic> map) {
@@ -824,11 +826,12 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
 
         dynamic parsedData;
         if (rawData.isA<JSString>()) {
-          final stringData = (rawData as JSString).toDart;
           try {
-            parsedData = jsonDecode(stringData);
+            // ⚡ Bolt: Avoid Dart Wasm string allocation by natively parsing JSON in V8
+            final jsParsed = _jsParseJson(rawData as JSString);
+            parsedData = _jsAnyToDart(jsParsed);
           } catch (_) {
-            parsedData = stringData;
+            parsedData = (rawData as JSString).toDart;
           }
         } else {
           parsedData = _jsAnyToDart(rawData);

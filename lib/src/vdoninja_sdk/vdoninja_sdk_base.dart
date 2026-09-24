@@ -231,7 +231,7 @@ class VDONinjaPasswordBoolean extends VDONinjaPassword {
   const VDONinjaPasswordBoolean(this.value);
 
   @override
-  String toString() => "VDONinjaPassword.boolean($value)";
+  String toString() => "VDONinjaPassword.boolean(***)";
 }
 
 /// Represents a WebRTC ICE/STUN/TURN server configuration.

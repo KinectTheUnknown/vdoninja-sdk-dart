@@ -142,7 +142,7 @@ void main() {
         const passwordBool = VDONinjaPassword.boolean(false);
         expect(
           passwordBool.toString(),
-          equals("VDONinjaPassword.boolean(false)"),
+          equals("VDONinjaPassword.boolean(***)"),
         );
         expect(passwordBool, equals(const VDONinjaPassword.boolean(false)));
       });

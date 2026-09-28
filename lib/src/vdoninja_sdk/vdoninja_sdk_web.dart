@@ -17,7 +17,7 @@ Map<String, dynamic> _jsObjectToMap(JSObject obj) {
   try {
     final dartObj = obj.dartify();
     if (dartObj is Map) {
-      return Map<String, dynamic>.from(dartObj);
+      return dartObj.cast<String, dynamic>();
     }
   } catch (_) {
     // Ignore error and fall through

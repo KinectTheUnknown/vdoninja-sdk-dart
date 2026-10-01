@@ -25,3 +25,7 @@
 ## $(date +%Y-%m-%d) - JSON Parsing Overhead across Boundaries
 **Learning:** When a JavaScript event payload contains a large stringified JSON object (as a `JSString`), calling `.toDart` and then `jsonDecode(string)` forces the Wasm bridge to copy the entire UTF-16 payload into Dart memory just to parse it. Wrapping `JSON.parse` natively using `@JS("JSON.parse") external JSAny _jsonParse(JSString text);` executes the parse entirely on the V8/SpiderMonkey engine side and is ~5-10x faster.
 **Action:** When parsing JSON payloads originating from JavaScript events, prefer binding and invoking `JSON.parse` natively instead of passing the raw string string across the Wasm boundary to Dart's `jsonDecode`.
+
+## $(date +%Y-%m-%d) - JS Interop Map dartify() Reallocation Overhead
+**Learning:** In Dart-to-JS/Wasm interop, when `obj.dartify()` is used to convert a JavaScript Object into a Wasm Dart context, it natively instantiates a new Dart Map in memory. Immediately passing this result to `Map<String, dynamic>.from(dartObj)` creates an anti-pattern that forces Dart to iterate over all elements and allocate a second `LinkedHashMap` in memory, resulting in O(n) memory allocation overhead on every bridge access.
+**Action:** When casting the result of `.dartify()` to a typed map, use `dartObj.cast<String, dynamic>()`. This avoids secondary O(n) allocation by returning a lazy type-checking wrapper (`CastMap`) over the Wasm memory boundary, functioning identically with significantly better upfront allocation performance.

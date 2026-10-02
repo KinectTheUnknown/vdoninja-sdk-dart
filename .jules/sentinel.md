@@ -24,3 +24,8 @@
 **Vulnerability:** The previous security fix for `cdnUrl` validation (`Uri.tryParse(cdnUrl)?.scheme != "https"`) was too strict. Legitimate relative URLs (e.g., `//example.com/script.js` or `script.js`) have an empty scheme, so checking `scheme != "https"` incorrectly blocked them.
 **Learning:** When validating URIs, check `hasScheme` first. An empty scheme is often valid for relative URLs, while malicious schemes like `javascript:` or `data:` will explicitly trigger `hasScheme == true` but fail the `scheme == "https"` check.
 **Prevention:** Use `final parsed = Uri.tryParse(url); if (parsed == null || (parsed.hasScheme && parsed.scheme != "https"))` to safely allow relative URLs while blocking malicious schemes.
+
+## 2024-05-18 - [Log Injection via User-Provided URL]
+**Vulnerability:** The `Exception` thrown when a dynamically injected script fails to load included the dynamically generated `script.src` (which incorporates the user-provided `cdnUrl`).
+**Learning:** Including dynamically injected, user-provided URLs in Exception messages or console errors can lead to log injection or information disclosure when those errors are logged by the application.
+**Prevention:** Do not include dynamically injected, user-provided URLs in Exception messages or console errors.

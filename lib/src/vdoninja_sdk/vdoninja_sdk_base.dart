@@ -339,7 +339,7 @@ class VDONinjaTurnServersList extends VDONinjaTurnServers {
   const VDONinjaTurnServersList(this.value);
 
   @override
-  String toString() => "VDONinjaTurnServers.list($value)";
+  String toString() => "VDONinjaTurnServers.list(***)";
 }
 
 /// Represents the chunked transmission configuration option.

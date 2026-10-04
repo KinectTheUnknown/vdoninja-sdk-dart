@@ -17,7 +17,8 @@ Map<String, dynamic> _jsObjectToMap(JSObject obj) {
   try {
     final dartObj = obj.dartify();
     if (dartObj is Map) {
-      return Map<String, dynamic>.from(dartObj);
+      // ⚡ Bolt: Use .cast() instead of Map.from() to avoid O(n) reallocation overhead
+      return dartObj.cast<String, dynamic>();
     }
   } catch (_) {
     // Ignore error and fall through

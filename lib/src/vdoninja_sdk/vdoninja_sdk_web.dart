@@ -344,7 +344,8 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
     script.onerror = (web.Event event) {
       _initFuture = null;
       completer.completeError(
-        Exception("Failed to load VDO.Ninja SDK script from ${script.src}"),
+        // 🛡️ Sentinel: Removed script.src from Exception to prevent log injection/information disclosure.
+        Exception("Failed to load VDO.Ninja SDK script."),
       );
     }.toJS;
 

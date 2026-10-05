@@ -278,7 +278,8 @@ Future<void> initializeWHIP({String? cdnUrl, String version = "latest"}) async {
   script.onerror = (web.Event event) {
     _initWhipFuture = null;
     completer.completeError(
-      Exception("Failed to load WHIPClient script from ${script.src}"),
+      // 🛡️ Sentinel: Removed script.src from Exception to prevent log injection/information disclosure.
+      Exception("Failed to load WHIPClient script."),
     );
   }.toJS;
 

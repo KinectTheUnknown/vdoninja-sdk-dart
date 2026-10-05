@@ -263,7 +263,8 @@ Future<void> initializeWHEP({String? cdnUrl, String version = "latest"}) async {
   script.onerror = (web.Event event) {
     _initWhepFuture = null;
     completer.completeError(
-      Exception("Failed to load WHEPClient script from ${script.src}"),
+      // 🛡️ Sentinel: Removed script.src from Exception to prevent log injection/information disclosure.
+      Exception("Failed to load WHEPClient script."),
     );
   }.toJS;
 

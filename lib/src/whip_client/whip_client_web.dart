@@ -3,8 +3,18 @@ import "dart:js_interop";
 import "package:web/web.dart" as web;
 import "whip_client_base.dart";
 
-JSObject _mapToJSObject(Map<String, dynamic> map) {
-  return map.jsify() as JSObject;
+// ⚡ Bolt: Define extension type wrapper to evaluate object Wasm instantiation
+// directly instead of runtime map allocations crossed Wasm boundary.
+@anonymous
+@JS()
+extension type WHIPClientOptionsJS._(JSObject _) implements JSObject {
+  external factory WHIPClientOptionsJS({
+    JSString? authToken,
+    JSString? videoCodec,
+    JSNumber? videoBitrate,
+    JSNumber? audioBitrate,
+    JSBoolean? trickleIce,
+  });
 }
 
 @JS("WHIPClient")
@@ -57,14 +67,14 @@ class WHIPClientWeb implements WHIPClient {
       );
     }
 
-    final options = <String, dynamic>{};
-    if (authToken != null) options["authToken"] = authToken;
-    if (videoCodec != null) options["videoCodec"] = videoCodec;
-    if (videoBitrate != null) options["videoBitrate"] = videoBitrate;
-    if (audioBitrate != null) options["audioBitrate"] = audioBitrate;
-    if (trickleIce != null) options["trickleIce"] = trickleIce;
-
-    return WHIPClientJS(endpoint.toJS, _mapToJSObject(options));
+    final options = WHIPClientOptionsJS(
+      authToken: authToken?.toJS,
+      videoCodec: videoCodec?.toJS,
+      videoBitrate: videoBitrate?.toJS,
+      audioBitrate: audioBitrate?.toJS,
+      trickleIce: trickleIce?.toJS,
+    );
+    return WHIPClientJS(endpoint.toJS, options);
   }
 
   @override

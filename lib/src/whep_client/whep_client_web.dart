@@ -3,8 +3,17 @@ import "dart:js_interop";
 import "package:web/web.dart" as web;
 import "whep_client_base.dart";
 
-JSObject _mapToJSObject(Map<String, dynamic> map) {
-  return map.jsify() as JSObject;
+// ⚡ Bolt: Define extension type wrapper to evaluate object Wasm instantiation
+// directly instead of runtime map allocations crossed Wasm boundary.
+@anonymous
+@JS()
+extension type WHEPClientOptionsJS._(JSObject _) implements JSObject {
+  external factory WHEPClientOptionsJS({
+    JSString? authToken,
+    JSBoolean? audio,
+    JSBoolean? video,
+    JSBoolean? trickleIce,
+  });
 }
 
 @JS("WHEPClient")
@@ -55,13 +64,13 @@ class WHEPClientWeb implements WHEPClient {
       );
     }
 
-    final options = <String, dynamic>{};
-    if (authToken != null) options["authToken"] = authToken;
-    if (audio != null) options["audio"] = audio;
-    if (video != null) options["video"] = video;
-    if (trickleIce != null) options["trickleIce"] = trickleIce;
-
-    return WHEPClientJS(endpoint.toJS, _mapToJSObject(options));
+    final options = WHEPClientOptionsJS(
+      authToken: authToken?.toJS,
+      audio: audio?.toJS,
+      video: video?.toJS,
+      trickleIce: trickleIce?.toJS,
+    );
+    return WHEPClientJS(endpoint.toJS, options);
   }
 
   @override

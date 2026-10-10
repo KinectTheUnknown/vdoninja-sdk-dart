@@ -24,3 +24,7 @@
 **Vulnerability:** The previous security fix for `cdnUrl` validation (`Uri.tryParse(cdnUrl)?.scheme != "https"`) was too strict. Legitimate relative URLs (e.g., `//example.com/script.js` or `script.js`) have an empty scheme, so checking `scheme != "https"` incorrectly blocked them.
 **Learning:** When validating URIs, check `hasScheme` first. An empty scheme is often valid for relative URLs, while malicious schemes like `javascript:` or `data:` will explicitly trigger `hasScheme == true` but fail the `scheme == "https"` check.
 **Prevention:** Use `final parsed = Uri.tryParse(url); if (parsed == null || (parsed.hasScheme && parsed.scheme != "https"))` to safely allow relative URLs while blocking malicious schemes.
+## 2026-07-21 - [Log Injection via script.src]
+**Vulnerability:** The dynamic script loading routines included the user-controllable (or dynamically constructed) `script.src` string directly inside the `Exception` message when script loading failed.
+**Learning:** Including untrusted or dynamic inputs directly in exception messages or logs can lead to information exposure or log injection. If a malicious user can control `cdnUrl`, they could inject arbitrary content into error tracking systems or UI error dialogs.
+**Prevention:** Avoid embedding user-supplied URLs (like `cdnUrl` or `script.src`) in exception strings. Use static, general error messages (e.g., `"Failed to load WHEPClient script"`) to prevent log injection and data leakage.

@@ -269,6 +269,7 @@ Future<void> initializeWHIP({String? cdnUrl, String version = "latest"}) async {
   script.type = "text/javascript";
   script.async = true;
   script.crossOrigin = "anonymous";
+  script.referrerPolicy = "no-referrer";
 
   script.onload = (web.Event event) {
     _initWhipFuture = null;

@@ -25,3 +25,7 @@
 ## $(date +%Y-%m-%d) - JSON Parsing Overhead across Boundaries
 **Learning:** When a JavaScript event payload contains a large stringified JSON object (as a `JSString`), calling `.toDart` and then `jsonDecode(string)` forces the Wasm bridge to copy the entire UTF-16 payload into Dart memory just to parse it. Wrapping `JSON.parse` natively using `@JS("JSON.parse") external JSAny _jsonParse(JSString text);` executes the parse entirely on the V8/SpiderMonkey engine side and is ~5-10x faster.
 **Action:** When parsing JSON payloads originating from JavaScript events, prefer binding and invoking `JSON.parse` natively instead of passing the raw string string across the Wasm boundary to Dart's `jsonDecode`.
+
+## $(date +%Y-%m-%d) - Avoid .cast() for collections in hot paths
+**Learning:** Using .cast() on collections like Lists is a performance anti-pattern as it returns a lazy CastList wrapper, imposing dynamic type-checking overhead on every access. Using List.from() allocates and checks types once upfront, increasing performance for frequently accessed data.
+**Action:** Always prefer List<T>.from(iterable) over iterable.cast<T>() when accessing items in loops or hot paths.

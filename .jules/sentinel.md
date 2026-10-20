@@ -24,3 +24,8 @@
 **Vulnerability:** The previous security fix for `cdnUrl` validation (`Uri.tryParse(cdnUrl)?.scheme != "https"`) was too strict. Legitimate relative URLs (e.g., `//example.com/script.js` or `script.js`) have an empty scheme, so checking `scheme != "https"` incorrectly blocked them.
 **Learning:** When validating URIs, check `hasScheme` first. An empty scheme is often valid for relative URLs, while malicious schemes like `javascript:` or `data:` will explicitly trigger `hasScheme == true` but fail the `scheme == "https"` check.
 **Prevention:** Use `final parsed = Uri.tryParse(url); if (parsed == null || (parsed.hasScheme && parsed.scheme != "https"))` to safely allow relative URLs while blocking malicious schemes.
+
+## 2026-07-21 - [Referrer Policy & Log Injection]
+**Vulnerability:** Dynamically loaded scripts leaked the current URL via the `Referer` header to CDNs. Additionally, user-supplied script URLs (`cdnUrl`) were included in exception messages, creating a log injection risk.
+**Learning:** When injecting scripts dynamically, always set `referrerPolicy = "no-referrer"` to prevent exposing potentially sensitive application URLs. Furthermore, do not include dynamically provided, untrusted URLs in exception messages or logs.
+**Prevention:** Ensure `script.referrerPolicy = "no-referrer";` is set along with `script.crossOrigin = "anonymous";`. Never interpolate dynamic script sources into `Exception` or `console.error` logs.

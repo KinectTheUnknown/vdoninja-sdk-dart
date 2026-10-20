@@ -269,6 +269,7 @@ Future<void> initializeWHIP({String? cdnUrl, String version = "latest"}) async {
   script.type = "text/javascript";
   script.async = true;
   script.crossOrigin = "anonymous";
+  script.referrerPolicy = "no-referrer";
 
   script.onload = (web.Event event) {
     _initWhipFuture = null;
@@ -277,9 +278,7 @@ Future<void> initializeWHIP({String? cdnUrl, String version = "latest"}) async {
 
   script.onerror = (web.Event event) {
     _initWhipFuture = null;
-    completer.completeError(
-      Exception("Failed to load WHIPClient script from ${script.src}"),
-    );
+    completer.completeError(Exception("Failed to load WHIPClient script"));
   }.toJS;
 
   web.document.head!.appendChild(script);

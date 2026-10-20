@@ -862,20 +862,25 @@ class VDONinjaSDKWeb implements VDONinjaSDK {
 
         bool isControlMessage = false;
         if (parsedData is Map) {
-          if (parsedData.containsKey("description") ||
-              parsedData.containsKey("candidate") ||
-              parsedData.containsKey("candidates") ||
-              parsedData.containsKey("audio") ||
-              parsedData.containsKey("video") ||
-              parsedData.containsKey("info") ||
-              parsedData.containsKey("ping") ||
-              parsedData.containsKey("pong") ||
-              parsedData.containsKey("bye") ||
-              parsedData.containsKey("videoMuted") ||
-              parsedData.containsKey("pipe") ||
-              parsedData.containsKey("iceRestartRequest")) {
-            isControlMessage = true;
-          }
+          const controlKeys = {
+            "description",
+            "candidate",
+            "candidates",
+            "audio",
+            "video",
+            "info",
+            "ping",
+            "pong",
+            "bye",
+            "videoMuted",
+            "pipe",
+            "iceRestartRequest",
+          };
+          // ⚡ Bolt: Use .any() with a Set to iterate keys instead of 12 sequential containsKey checks.
+          // This avoids redundant hash lookups since incoming data messages are typically small maps.
+          isControlMessage = parsedData.keys.any(
+            (k) => controlKeys.contains(k),
+          );
         }
 
         if (!isControlMessage) {

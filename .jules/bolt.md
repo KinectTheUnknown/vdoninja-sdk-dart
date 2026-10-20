@@ -25,3 +25,7 @@
 ## $(date +%Y-%m-%d) - JSON Parsing Overhead across Boundaries
 **Learning:** When a JavaScript event payload contains a large stringified JSON object (as a `JSString`), calling `.toDart` and then `jsonDecode(string)` forces the Wasm bridge to copy the entire UTF-16 payload into Dart memory just to parse it. Wrapping `JSON.parse` natively using `@JS("JSON.parse") external JSAny _jsonParse(JSString text);` executes the parse entirely on the V8/SpiderMonkey engine side and is ~5-10x faster.
 **Action:** When parsing JSON payloads originating from JavaScript events, prefer binding and invoking `JSON.parse` natively instead of passing the raw string string across the Wasm boundary to Dart's `jsonDecode`.
+
+## 2026-10-20 - Redundant Map.containsKey lookups in small payloads
+**Learning:** In Dart, calling `Map.containsKey` multiple times (e.g. 12 sequential OR checks) on a very small Map (typical of WebRTC signaling payloads that have 1-2 keys) is slower than iterating the few map keys with `.any()` against a statically defined `const Set` of target keys. Hash lookups add overhead when the vast majority of keys simply aren't present.
+**Action:** When validating if a Map contains any of a predefined set of specific keys, define those keys in a `const Set` and use `map.keys.any((k) => controlKeys.contains(k))` rather than sequential `containsKey` checks.

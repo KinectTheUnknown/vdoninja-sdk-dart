@@ -254,6 +254,7 @@ Future<void> initializeWHEP({String? cdnUrl, String version = "latest"}) async {
   script.type = "text/javascript";
   script.async = true;
   script.crossOrigin = "anonymous";
+  script.referrerPolicy = "no-referrer";
 
   script.onload = (web.Event event) {
     _initWhepFuture = null;
@@ -262,9 +263,7 @@ Future<void> initializeWHEP({String? cdnUrl, String version = "latest"}) async {
 
   script.onerror = (web.Event event) {
     _initWhepFuture = null;
-    completer.completeError(
-      Exception("Failed to load WHEPClient script from ${script.src}"),
-    );
+    completer.completeError(Exception("Failed to load WHEPClient script"));
   }.toJS;
 
   web.document.head!.appendChild(script);
